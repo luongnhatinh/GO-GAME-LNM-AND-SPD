@@ -1,0 +1,47 @@
+# depslib dependency file v1.0
+1760543134 source:d:\tom\apcs\cm160-th\gogame\board.cpp
+	<iostream>
+	<bits/stdc++.h>
+	"board.h"
+	<vector>
+	<utility>
+
+1760545456 d:\tom\apcs\cm160-th\gogame\board.h
+	<bits/stdc++.h>
+	<iostream>
+	<vector>
+	<utility>
+
+1760543255 source:d:\tom\apcs\cm160-th\gogame\main.cpp
+	<iostream>
+	"board.h"
+
+1761614587 source:d:\tom\apcs\cs160-th\gogame\main.cpp
+	<iostream>
+	"board.h"
+	"AI.h"
+	<bits/stdc++.h>
+
+1761615075 d:\tom\apcs\cs160-th\gogame\board.h
+	<iostream>
+	<vector>
+	<utility>
+
+1761193272 source:d:\tom\apcs\cs160-th\gogame\board.cpp
+	<iostream>
+	"board.h"
+	<vector>
+	<utility>
+	<queue>
+
+1760973818 source:d:\tom\apcs\cs160-th\gogame\ai.cpp
+	"AI.h"
+	"board.h"
+	<cstdlib>
+	<ctime>
+	<random>
+	<utility>
+
+1761101459 d:\tom\apcs\cs160-th\gogame\ai.h
+	"board.h"
+
