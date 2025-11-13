@@ -16,25 +16,34 @@
 	<iostream>
 	"board.h"
 
-1761614587 source:d:\tom\apcs\cs160-th\gogame\main.cpp
+1762533128 source:d:\tom\apcs\cs160-th\gogame\main.cpp
 	<iostream>
 	"board.h"
 	"AI.h"
-	<bits/stdc++.h>
-
-1761615075 d:\tom\apcs\cs160-th\gogame\board.h
-	<iostream>
 	<vector>
 	<utility>
-
-1761193272 source:d:\tom\apcs\cs160-th\gogame\board.cpp
-	<iostream>
-	"board.h"
-	<vector>
-	<utility>
+	<stack>
+	<cstring>
 	<queue>
 
-1760973818 source:d:\tom\apcs\cs160-th\gogame\ai.cpp
+1762533128 d:\tom\apcs\cs160-th\gogame\board.h
+	<iostream>
+	<vector>
+	<utility>
+	<stack>
+	<cstring>
+
+1762532794 source:d:\tom\apcs\cs160-th\gogame\board.cpp
+	<iostream>
+	"board.h"
+	<iostream>
+	<vector>
+	<utility>
+	<stack>
+	<cstring>
+	<queue>
+
+1762531929 source:d:\tom\apcs\cs160-th\gogame\ai.cpp
 	"AI.h"
 	"board.h"
 	<cstdlib>
