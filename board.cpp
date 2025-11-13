@@ -1,8 +1,11 @@
 #include <iostream>
 //#include <bits/stdc++.h>
 #include "board.h"
+#include <iostream>
 #include <vector>
 #include <utility>
+#include <stack>
+#include <cstring>
 #include <queue>
 using namespace std;
 const int Board::step_i[4]={-1,0,1,0};
@@ -16,6 +19,7 @@ Board::Board() {
     }
     BlackStoneCapture=0;
     WhiteStoneCapture=0;
+    undo.push(*this);
 }
 std::vector<std::pair<int,int>> Board::AllValidMove() const {
     std::vector<std::pair<int,int>>v;
@@ -40,11 +44,14 @@ bool Board::PlaceStone(int row, int col, char player) {
     if(board[row][col]=='O') {
         board[row][col]=player;
         bool result=Capture(row,col,player);
+        undo.push(*this);
         //kiem tra neu khong bat duoc quan va do la nuoc di tu sat
         if (!result && bfs(row,col,player).first==0) {
-            board[row][col]='O';
+            *this = undo.top();
+            undo.pop();
             return false;
         }
+        while(!redo.empty()) redo.pop();
         return true;
     }
     else {
@@ -80,7 +87,7 @@ bool Board::Capture(int row, int col, char player) {
     return false;
 }
 // Dem so lanh tho cua tung nguoi choi
-std::pair<int,int> Board::CountArea() {
+std::pair<int,int> Board::CountArea() const{
     int BlackPlayerArea=0;
     int WhitePlayerArea=0;
     bool VisitedLiberties[20][20]={false};
@@ -97,13 +104,13 @@ std::pair<int,int> Board::CountArea() {
     }
     return {BlackPlayerArea,WhitePlayerArea};
 }
-int Board::evaluateBoard(const Board& board,char AI_player) {
+int Board::evaluateBoard(char AI_player) const {
     std::pair<int,int> Area=CountArea();
     int BlackArea=Area.first;
     int WhiteArea=Area.second;
     return (AI_player=='B')? BlackArea+BlackStoneCapture : WhiteArea+WhiteStoneCapture;
 }
-NumberAndTypeOfArea Board::BfsArea(int row, int col,bool VisitedLiberties[20][20]) {
+NumberAndTypeOfArea Board::BfsArea(int row, int col,bool VisitedLiberties[20][20]) const{
     std::queue<std::pair<int,int>> q;
     q.push({row,col});
     bool TouchedBlack=false, TouchedWhite=false;
@@ -162,4 +169,26 @@ std::pair<int,std::vector<pair<int,int>>> Board::bfs(int row, int col, char Ston
         }
     }
     return {Cnt_Liberties,Save_node};
+}
+void Board::Undo_Board() {
+    if(undo.empty()) {
+        return;
+    }
+    redo.push(*this);
+    *this=undo.top();
+    undo.pop();
+}
+void Board::Redo_Board() {
+    if(redo.empty()) {
+        return;
+    }
+    undo.push(*this);
+    *this=redo.top();
+    redo.pop();
+}
+Board& Board::operator=(const Board& other) {
+    memcpy(this -> board,other.board, sizeof(this->board));
+    this->BlackStoneCapture=other.BlackStoneCapture;
+    this->WhiteStoneCapture=other.WhiteStoneCapture;
+    return *this;
 }
