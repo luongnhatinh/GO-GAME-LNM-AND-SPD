@@ -117,3 +117,58 @@
 	<stdarg.h>
 	<stdbool.h>
 
+1763478987 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.cpp
+	"AI.h"
+	"board.h"
+	<cstdlib>
+	<ctime>
+	<random>
+	<utility>
+
+1763478987 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.h
+	"board.h"
+
+1763479629 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\board.h
+	<iostream>
+	<vector>
+	<utility>
+	<stack>
+	<cstring>
+	<fstream>
+	<string>
+
+1763478987 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\game.cpp
+	"board.h"
+	"AI.h"
+	"Game.h"
+	<iostream>
+	<vector>
+	<utility>
+	<stack>
+	<cstring>
+	<queue>
+
+1763478987 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\game.h
+	<iostream>
+	<vector>
+	<utility>
+	<stack>
+	<cstring>
+	<queue>
+	<raylib.h>
+
+1763478987 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\main.cpp
+	<iostream>
+	"board.h"
+	"Game.h"
+	"AI.h"
+	<vector>
+	<utility>
+	<stack>
+	<cstring>
+	<queue>
+
+1763478987 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\raylib\raylib_lib\include\raylib.h
+	<stdarg.h>
+	<stdbool.h>
+

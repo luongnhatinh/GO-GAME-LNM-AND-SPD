@@ -6,6 +6,8 @@
 #include <utility>
 #include <stack>
 #include <cstring>
+#include <fstream>
+#include <string>
 
     struct NumberAndTypeOfArea {
     int cnt;
@@ -15,9 +17,9 @@
 class Board {
 public:
     Board();
-    bool PlaceStone(int row, int col, char player);
+    bool PlaceStone(int row, int col);
     void PrintBoard();
-    bool Capture(int row, int col, char player);
+    bool Capture(int row, int col);
     std::pair<int,int> CountArea() const ;
     std::vector<std::pair<int,int>> AllValidMove() const;
     // cham diem the co
@@ -25,6 +27,8 @@ public:
     void Undo_Board();
     void Redo_Board();
     Board& operator=(const Board& other);
+    bool SaveGame(std::string filename);
+    bool LoadGame(std::string filename);
 private:
     char board[20][20];
     std::pair<int,std::vector<std::pair<int,int>>> bfs (int row, int col, char Stone);
@@ -33,8 +37,8 @@ private:
     static const int step_j[4];
     int BlackStoneCapture;
     int WhiteStoneCapture;
+    char player;
     std::stack<Board> undo;
     std::stack<Board>redo;
 };
 #endif // BOARD_H_INCLUDED
-

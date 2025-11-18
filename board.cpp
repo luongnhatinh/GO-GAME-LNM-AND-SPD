@@ -7,6 +7,8 @@
 #include <stack>
 #include <cstring>
 #include <queue>
+#include <string>
+#include <fstream>
 using namespace std;
 const int Board::step_i[4]={-1,0,1,0};
 const int Board::step_j[4]={0,1,0,-1};
@@ -19,6 +21,7 @@ Board::Board() {
     }
     BlackStoneCapture=0;
     WhiteStoneCapture=0;
+    player='B';
     undo.push(*this);
 }
 std::vector<std::pair<int,int>> Board::AllValidMove() const {
@@ -40,10 +43,10 @@ void Board::PrintBoard() {
         cout<<endl;
     }
 }
-bool Board::PlaceStone(int row, int col, char player) {
+bool Board::PlaceStone(int row, int col) {
     if(board[row][col]=='O') {
         board[row][col]=player;
-        bool result=Capture(row,col,player);
+        bool result=Capture(row,col);
         undo.push(*this);
         //kiem tra neu khong bat duoc quan va do la nuoc di tu sat
         if (!result && bfs(row,col,player).first==0) {
@@ -52,13 +55,14 @@ bool Board::PlaceStone(int row, int col, char player) {
             return false;
         }
         while(!redo.empty()) redo.pop();
+        player= (player=='B')? 'W' : 'B';
         return true;
     }
     else {
         return false;
     }
 }
-bool Board::Capture(int row, int col, char player) {
+bool Board::Capture(int row, int col) {
     //Duyệt qua các đinh kề của điểm vừa đặt
     //Nếu có 1 quân cờ khác màu, kiểm tra coi nhóm quân đó có bị ăn bởi nước đi vừa rồi không
     //Đếm số khí của nhóm quân đó và vecotr chứa các phần tử của nhóm quân đó
@@ -190,5 +194,42 @@ Board& Board::operator=(const Board& other) {
     memcpy(this -> board,other.board, sizeof(this->board));
     this->BlackStoneCapture=other.BlackStoneCapture;
     this->WhiteStoneCapture=other.WhiteStoneCapture;
+    this->player=other.player;
     return *this;
+}
+bool Board::SaveGame(string filename) {
+    ofstream fout;
+    fout.open(filename);
+    if(!fout.is_open()) {
+        return false;
+    }
+    fout<<player<<endl;
+    fout<<BlackStoneCapture<<" "<<WhiteStoneCapture<<endl;
+    for(int i=1;i<=19;i++) {
+        for(int j=1;j<=19;j++) {
+            fout<<board[i][j];
+        }
+    }
+    fout<<"\n";
+    fout.close();
+    return true;
+}
+bool Board::LoadGame(string filename) {
+    ifstream fin;
+    fin.open(filename);
+    if(!fin.is_open()) {
+        return false;
+    }
+    fin>>player;
+    fin>>BlackStoneCapture>>WhiteStoneCapture;
+    for(int i=1;i<=19;i++) {
+        for(int j=1;j<=19;j++) {
+            fin>>board[i][j];
+        }
+    }
+    while(!undo.empty()) undo.pop();
+    while(!redo.empty()) redo.pop();
+    undo.push(*this);
+    fin.close();
+    return true;
 }
