@@ -6,6 +6,7 @@
 #include <stack>
 #include <cstring>
 #include <queue>
+#include <raylib.h>
 
 class Game{
 public:
