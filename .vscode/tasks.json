@@ -1,0 +1,56 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        // Task 1: Dùng để biên dịch file .c ra .exe
+        {
+            "label": "Build Raylib Project",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "${workspaceFolder}/main.cpp",
+                "-I${workspaceFolder}/raylib/raylib_lib/include",
+                "-L${workspaceFolder}/raylib/raylib_lib/lib",
+                "-o",
+                "${workspaceFolder}/build/game.exe",
+                "-lraylib",
+                "-lopengl32",
+                "-lgdi32",
+                "-lwinmm",
+                "-g"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build" // Không cần làm default ở đây
+        },
+
+        // Task 2: Dùng để tạo thư mục 'build' và copy file .dll
+        {
+            "label": "Prepare Build",
+            "type": "shell",
+            "command": "if not exist .\\build mkdir .\\build && copy /Y .\\raylib\\raylib_lib\\lib\\raylib.dll .\\build\\raylib.dll",
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/C"]
+                }
+            },
+            "problemMatcher": []
+        },
+        // Task 3: Task "mẹ" để nộp bài, chạy 2 task trên
+        // Đây là task duy nhất được set làm default
+        {
+            "label": "Build and Prepare",
+            "dependsOrder": "sequence", // Chạy tuần tự
+            "dependsOn": [
+                "Prepare Build", // Chạy cái này trước
+                "Build Raylib Project" // Rồi chạy cái này
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true // Đặt làm task build mặc định (Ctrl+Shift+B)
+            },
+            "problemMatcher": []
+        }
+    ]
+}
