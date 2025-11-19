@@ -28,7 +28,7 @@
         {
             "label": "Prepare Build",
             "type": "shell",
-            "command": "if not exist .\\build mkdir .\\build && copy /Y .\\raylib\\raylib_lib\\lib\\raylib.dll .\\build\\raylib.dll",
+            "command": "if not exist .\\build mkdir .\\build && copy /Y .\\raylib\\raylib_lib\\lib\\raylib.dll .\\raylib\\raylib_lib\\lib\\raylib.dll",
             "options": {
                 "shell": {
                     "executable": "cmd.exe",

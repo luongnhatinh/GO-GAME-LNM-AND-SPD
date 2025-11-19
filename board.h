@@ -15,6 +15,7 @@
 class Board {
 public:
     Board();
+    Board(const Board& other);  // Copy constructor - QUAN TRỌNG!
     bool PlaceStone(int row, int col, char player);
     void PrintBoard();
     bool Capture(int row, int col, char player);
@@ -25,6 +26,17 @@ public:
     void Undo_Board();
     void Redo_Board();
     Board& operator=(const Board& other);
+
+    // Getter methods for UI
+    char getCell(int row, int col) const {
+        return board[row][col];
+    }
+    int getBlackCapture() const {
+        return BlackStoneCapture;
+    }
+    int getWhiteCapture() const {
+        return WhiteStoneCapture;
+    }
 private:
     char board[20][20];
     std::pair<int,std::vector<std::pair<int,int>>> bfs (int row, int col, char Stone);

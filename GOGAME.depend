@@ -65,7 +65,7 @@
 1763026767 c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\ai.h
 	"board.h"
 
-1763026767 c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\board.h
+1763541367 c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\board.h
 	<iostream>
 	<vector>
 	<utility>
@@ -82,16 +82,12 @@
 	<cstring>
 	<queue>
 
-1763477607 source:c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\game.cpp
-	"board.h"
-	"AI.h"
+1763592837 source:c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\game.cpp
 	"Game.h"
+	"board.h"
+	"UI.h"
+	<raylib.h>
 	<iostream>
-	<vector>
-	<utility>
-	<stack>
-	<cstring>
-	<queue>
 
 1763393511 source:c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\main.cpp
 	<iostream>
@@ -104,7 +100,7 @@
 	<cstring>
 	<queue>
 
-1763477517 c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\game.h
+1763592585 c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\game.h
 	<iostream>
 	<vector>
 	<utility>
@@ -112,8 +108,19 @@
 	<cstring>
 	<queue>
 	<raylib.h>
+	"board.h"
+	"UI.h"
 
 1731932645 c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\raylib\raylib_lib\include\raylib.h
 	<stdarg.h>
 	<stdbool.h>
+
+1763541479 c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\ui.h
+	<raylib.h>
+	"board.h"
+
+1763541712 source:c:\users\sampi\onedrive\desktop\khtn\apcs\1. cs160_intro to cs\go-game-lnm-and-spd\ui.cpp
+	"UI.h"
+	<raylib.h>
+	<string>
 
