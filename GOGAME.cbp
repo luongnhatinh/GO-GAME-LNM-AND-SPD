@@ -40,7 +40,13 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="D:/TOM/APCS/CS160-TH/GO-GAME-LNM-AND-SPD/raylib/raylib_lib/include" />
 		</Compiler>
+		<Linker>
+			<Add library="D:/TOM/APCS/CS160-TH/GO-GAME-LNM-AND-SPD/raylib/raylib_lib/lib/libraylib.a" />
+			<Add library="D:/TOM/APCS/CS160-TH/GO-GAME-LNM-AND-SPD/raylib/raylib_lib/lib/libraylibdll.a" />
+			<Add directory="D:/TOM/APCS/CS160-TH/GO-GAME-LNM-AND-SPD/raylib/raylib_lib/lib" />
+		</Linker>
 		<Unit filename="AI.cpp" />
 		<Unit filename="AI.h" />
 		<Unit filename="Game.cpp" />

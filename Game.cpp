@@ -30,8 +30,8 @@ void Game::init() {
 // ========== RESET GAME STATE ==========
 void Game::resetGame() {
     // Reset game state (KHÔNG tạo window mới)
-    board = Board();                // Tạo bàn cờ mới
-    currentPlayer = 'B';            // Đen đi trước
+    board = Board();                           // Tạo bàn cờ mới (tự set player = 'B')
+    currentPlayer = board.getCurrentPlayer();  // Đồng bộ với Board
     isGameOver = false;
     winner = ' ';
     consecutivePasses = 0;
@@ -104,13 +104,13 @@ void Game::handleStonePlace(int row, int col) {
     // LƯU VÀO HISTORY TRƯỚC KHI ĐẶT QUÂN
     history.push(board);  // Lưu trạng thái hiện tại
 
-    // Thử đặt quân vào Board
-    bool success = board.PlaceStone(row, col, currentPlayer);
+    // Thử đặt quân vào Board (Board tự quản lý player và tự switch)
+    bool success = board.PlaceStone(row, col);
 
     if (success) {
         // Đặt quân thành công
         consecutivePasses = 0;  // Reset số lần pass
-        switchPlayer();          // Chuyển lượt
+        currentPlayer = board.getCurrentPlayer();  // Đồng bộ với Board (đã switch)
         checkGameOver();         // Kiểm tra kết thúc
 
         // Clear redo stack (không thể redo sau khi đặt quân mới)
@@ -136,8 +136,8 @@ void Game::handleUndo() {
     board = history.top();
     history.pop();
 
-    // Quay lại người chơi trước đó
-    switchPlayer();
+    // Đồng bộ currentPlayer với Board (Board đã có player cũ)
+    currentPlayer = board.getCurrentPlayer();
 
     // Reset game over nếu đang ở trạng thái kết thúc
     if (isGameOver) {
@@ -161,8 +161,8 @@ void Game::handleRedo() {
     board = redoStack.top();
     redoStack.pop();
 
-    // Chuyển sang người chơi tiếp theo
-    switchPlayer();
+    // Đồng bộ currentPlayer với Board
+    currentPlayer = board.getCurrentPlayer();
 }
 
 // ========== XỬ LÝ PASS ==========
@@ -172,7 +172,11 @@ void Game::handlePass() {
     }
 
     consecutivePasses++;
-    switchPlayer();
+
+    // Board tự switch player
+    board.switchPlayer();
+    currentPlayer = board.getCurrentPlayer();
+
     checkGameOver();
 
     std::cout << "Player passed. Consecutive passes: " << consecutivePasses << std::endl;
@@ -185,6 +189,8 @@ void Game::handleNewGame() {
 
 // ========== CHUYỂN LƯỢT CHƠI ==========
 void Game::switchPlayer() {
+    // Không còn cần thiết vì Board tự quản lý player
+    // Giữ lại để backward compatibility
     currentPlayer = (currentPlayer == 'B') ? 'W' : 'B';
 }
 
