@@ -1,0 +1,16 @@
+# Bỏ qua các file chạy thực thi (.exe)
+*.exe
+
+# Bỏ qua các file object sinh ra khi biên dịch
+*.o
+*.obj
+
+# Bỏ qua toàn bộ thư mục chứa file build tạm (Quan trọng)
+bin/
+obj/
+Debug/
+Release/
+
+# Bỏ qua các file cấu hình của IDE (Code::Blocks, VSCode...)
+*.layout
+*.depend

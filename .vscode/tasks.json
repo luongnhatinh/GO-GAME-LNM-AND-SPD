@@ -5,9 +5,13 @@
         {
             "label": "Build Raylib Project",
             "type": "shell",
-            "command": "gcc",
+            "command": "g++",
             "args": [
                 "${workspaceFolder}/main.cpp",
+                "${workspaceFolder}/Game.cpp",
+                "${workspaceFolder}/UI.cpp",
+                "${workspaceFolder}/board.cpp",
+                "${workspaceFolder}/AI.cpp",
                 "-I${workspaceFolder}/raylib/raylib_lib/include",
                 "-L${workspaceFolder}/raylib/raylib_lib/lib",
                 "-o",
@@ -28,7 +32,7 @@
         {
             "label": "Prepare Build",
             "type": "shell",
-            "command": "if not exist .\\build mkdir .\\build && copy /Y .\\raylib\\raylib_lib\\lib\\raylib.dll .\\build\\raylib.dll",
+            "command": "if not exist .\\build mkdir .\\build && copy /Y .\\raylib\\raylib_lib\\lib\\raylib.dll .\\raylib\\raylib_lib\\lib\\raylib.dll",
             "options": {
                 "shell": {
                     "executable": "cmd.exe",
