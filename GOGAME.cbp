@@ -18,6 +18,9 @@
 				<Linker>
 					<Add library="raylib/raylib_lib/lib/libraylib.a" />
 					<Add library="raylib/raylib_lib/lib/libraylibdll.a" />
+					<Add library="opengl32" />
+					<Add library="gdi32" />
+					<Add library="winmm" />
 					<Add directory="raylib/raylib_lib/lib" />
 				</Linker>
 			</Target>
@@ -42,6 +45,8 @@
 		<Unit filename="AI.h" />
 		<Unit filename="Game.cpp" />
 		<Unit filename="Game.h" />
+		<Unit filename="UI.cpp" />
+		<Unit filename="UI.h" />
 		<Unit filename="board.cpp" />
 		<Unit filename="board.h" />
 		<Unit filename="main.cpp" />

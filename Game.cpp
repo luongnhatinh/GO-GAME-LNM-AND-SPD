@@ -39,6 +39,18 @@ void Game::resetGame() {
     hoverCol = -1;
     blackFinalScore = 0;
     whiteFinalScore = 0;
+
+    // Clear history
+    while (!history.empty()) history.pop();
+    while (!redoStack.empty()) redoStack.pop();
+
+    // Debug output
+    std::cout << "=== RESET GAME ===" << std::endl;
+    std::cout << "Black Capture: " << board.getBlackCapture() << std::endl;
+    std::cout << "White Capture: " << board.getWhiteCapture() << std::endl;
+    std::pair<int, int> area = board.CountArea();
+    std::cout << "Black Area: " << area.first << std::endl;
+    std::cout << "White Area: " << area.second << std::endl;
 }
 
 // ========== XỬ LÝ INPUT ==========
@@ -89,6 +101,9 @@ void Game::handleInput() {
 
 // ========== XỬ LÝ ĐẶT QUÂN ==========
 void Game::handleStonePlace(int row, int col) {
+    // LƯU VÀO HISTORY TRƯỚC KHI ĐẶT QUÂN
+    history.push(board);  // Lưu trạng thái hiện tại
+
     // Thử đặt quân vào Board
     bool success = board.PlaceStone(row, col, currentPlayer);
 
@@ -97,13 +112,29 @@ void Game::handleStonePlace(int row, int col) {
         consecutivePasses = 0;  // Reset số lần pass
         switchPlayer();          // Chuyển lượt
         checkGameOver();         // Kiểm tra kết thúc
+
+        // Clear redo stack (không thể redo sau khi đặt quân mới)
+        while (!redoStack.empty()) redoStack.pop();
+    } else {
+        // Đặt quân thất bại → Xóa snapshot vừa lưu
+        history.pop();
     }
-    // Nếu thất bại → không làm gì (nước đi không hợp lệ)
 }
 
 // ========== XỬ LÝ UNDO ==========
 void Game::handleUndo() {
-    board.Undo_Board();
+    // Kiểm tra có history không
+    if (history.empty()) {
+        std::cout << "No moves to undo!" << std::endl;
+        return;
+    }
+
+    // Lưu trạng thái hiện tại vào redo stack
+    redoStack.push(board);
+
+    // Khôi phục trạng thái trước đó
+    board = history.top();
+    history.pop();
 
     // Quay lại người chơi trước đó
     switchPlayer();
@@ -117,7 +148,18 @@ void Game::handleUndo() {
 
 // ========== XỬ LÝ REDO ==========
 void Game::handleRedo() {
-    board.Redo_Board();
+    // Kiểm tra có redo stack không
+    if (redoStack.empty()) {
+        std::cout << "No moves to redo!" << std::endl;
+        return;
+    }
+
+    // Lưu trạng thái hiện tại vào history
+    history.push(board);
+
+    // Khôi phục trạng thái từ redo stack
+    board = redoStack.top();
+    redoStack.pop();
 
     // Chuyển sang người chơi tiếp theo
     switchPlayer();

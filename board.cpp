@@ -21,6 +21,16 @@ Board::Board() {
     WhiteStoneCapture=0;
     undo.push(*this);
 }
+
+// Copy constructor - FIX MEMORY LEAK
+// CHỈ copy game state, KHÔNG copy stack undo/redo để tránh đệ quy vô hạn
+Board::Board(const Board& other) {
+    memcpy(this->board, other.board, sizeof(this->board));
+    this->BlackStoneCapture = other.BlackStoneCapture;
+    this->WhiteStoneCapture = other.WhiteStoneCapture;
+    // KHÔNG copy undo và redo
+    // Stack undo/redo của object mới sẽ TRỐNG
+}
 std::vector<std::pair<int,int>> Board::AllValidMove() const {
     std::vector<std::pair<int,int>>v;
     for(int i=1;i<=19;i++) {
@@ -131,7 +141,9 @@ NumberAndTypeOfArea Board::BfsArea(int row, int col,bool VisitedLiberties[20][20
                 else if (board[i1][j1]=='B') {
                     TouchedBlack=true;
                 }
-                else TouchedWhite=true;
+                else if (board[i1][j1]=='W') {  // ← FIX: Chỉ khi THỰC SỰ là quân trắng
+                    TouchedWhite=true;
+                }
             }
         }
     }

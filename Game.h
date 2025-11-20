@@ -29,6 +29,10 @@ private:
     int consecutivePasses;          // Đếm số lần pass liên tiếp
     int hoverRow, hoverCol;         // Ô đang hover chuột
 
+    // ========== UNDO/REDO MANAGEMENT ==========
+    std::stack<Board> history;      // Lịch sử các nước đi (cho undo)
+    std::stack<Board> redoStack;    // Stack cho redo
+
     // ========== SCORE TRACKING ==========
     int blackFinalScore;
     int whiteFinalScore;
