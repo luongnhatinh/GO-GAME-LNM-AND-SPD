@@ -10,35 +10,36 @@ public:
     UI();
     ~UI();
 
-    // Khßi t¡o và óng Raylib window
+    // Khï¿½i tï¿½o vï¿½ ï¿½ng Raylib window
     void init();
     void cleanup();
 
-    // V½ các thành ph§n chính
-    void drawBoard();                                      // V½ grid 19x19
-    void drawStones(const Board& board);                   // V½ quân cÝ të Board
-    void drawHoverEffect(int row, int col);                // Highlight ô ang hover
-    void drawPlayerTurn(char currentPlayer);               // HiÃn thË "Black's turn"
+    // Vï¿½ cï¿½c thï¿½nh phï¿½n chï¿½nh
+    void drawBoard();                                      // Vï¿½ grid 19x19
+    void drawStones(const Board& board);                   // Vï¿½ quï¿½n cï¿½ tï¿½ Board
+    void drawHoverEffect(int row, int col);                // Highlight ï¿½ ang hover
+    void drawPlayerTurn(char currentPlayer);               // Hiï¿½n thï¿½ "Black's turn"
     void drawScore(int blackArea, int whiteArea,
-                   int blackCapture, int whiteCapture);    // HiÃn thË iÃm
-    void drawButtons();                                    // V½ các nút Undo/Redo/Pass
-    void drawGameOver(char winner, int blackScore, int whiteScore); // Màn hình k¿t thúc
+                   int blackCapture, int whiteCapture);    // Hiï¿½n thï¿½ iï¿½m
+    void drawButtons();                                    // Vï¿½ cï¿½c nï¿½t Undo/Redo/Pass
+    void drawGameOver(char winner, int blackScore, int whiteScore); // Mï¿½n hï¿½nh kï¿½t thï¿½c
 
-    // ChuyÃn Õi tÍa Ù
-    void screenToBoard(Vector2 mousePos, int& row, int& col);  // Pixel ’ (row, col)
-    Vector2 boardToScreen(int row, int col);                    // (row, col) ’ Pixel
+    // Chuyï¿½n ï¿½i tï¿½a ï¿½
+    void screenToBoard(Vector2 mousePos, int& row, int& col);  // Pixel ï¿½ (row, col)
+    Vector2 boardToScreen(int row, int col);                    // (row, col) ï¿½ Pixel
 
-    // KiÃm tra click nút
+    // Kiï¿½m tra click nï¿½t
     bool isUndoButtonClicked(Vector2 mousePos);
     bool isRedoButtonClicked(Vector2 mousePos);
     bool isPassButtonClicked(Vector2 mousePos);
     bool isNewGameButtonClicked(Vector2 mousePos);
+    bool isNewGameButtonGameOverClicked(Vector2 mousePos);  // Nï¿½t NEW GAME trong mï¿½n hï¿½nh kï¿½t thï¿½c
 
-    // B¯t §u/k¿t thúc v½ frame
+    // Bï¿½t ï¿½u/kï¿½t thï¿½c vï¿½ frame
     void beginDrawing();
     void endDrawing();
 
-    // KiÃm tra window có nên óng không
+    // Kiï¿½m tra window cï¿½ nï¿½n ï¿½ng khï¿½ng
     bool shouldClose();
 
 private:
@@ -67,10 +68,10 @@ private:
 
     // ========== HELPER FUNCTIONS ==========
     void drawGridLines();
-    void drawStarPoints();       // V½ các iÃm sao (hoshi) trên bàn cÝ
-    void drawCoordinates();      // V½ tÍa Ù A-T, 1-19
-    void initButtons();          // Khßi t¡o vË trí các nút
-    bool isInsideBoard(int row, int col);  // KiÃm tra tÍa Ù có trong bàn cÝ không
+    void drawStarPoints();       // Vï¿½ cï¿½c iï¿½m sao (hoshi) trï¿½n bï¿½n cï¿½
+    void drawCoordinates();      // Vï¿½ tï¿½a ï¿½ A-T, 1-19
+    void initButtons();          // Khï¿½i tï¿½o vï¿½ trï¿½ cï¿½c nï¿½t
+    bool isInsideBoard(int row, int col);  // Kiï¿½m tra tï¿½a ï¿½ cï¿½ trong bï¿½n cï¿½ khï¿½ng
 };
 
 #endif // UI_H_INCLUDED

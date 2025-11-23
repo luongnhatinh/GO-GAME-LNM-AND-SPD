@@ -63,6 +63,12 @@ void Game::handleInput() {
 
     // ===== XỬ LÝ CLICK CHUỘT =====
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        // Kiểm tra click nút NEW GAME trong game over screen trước
+        if (isGameOver && ui.isNewGameButtonGameOverClicked(mousePos)) {
+            handleNewGame();
+            return;
+        }
+
         // Kiểm tra click nút trước
         if (ui.isUndoButtonClicked(mousePos)) {
             handleUndo();
@@ -227,7 +233,7 @@ void Game::calculateFinalScore() {
     whiteFinalScore = whiteArea + whiteCapture + 7;
 
     // Xác định người thắng
-    if (blackFinalScore > whiteFinalScore) {
+    if (blackFinalScore >= whiteFinalScore) {
         winner = 'B';
     } else if (whiteFinalScore > blackFinalScore) {
         winner = 'W';

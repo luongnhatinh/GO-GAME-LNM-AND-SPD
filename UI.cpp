@@ -4,22 +4,22 @@
 
 // ========== CONSTRUCTOR/DESTRUCTOR ==========
 UI::UI() {
-    // Khﬂi t°o m‡u sØc
-    boardColor = Color{220, 179, 92, 255};      // M‡u g◊ cho b‡n c›
+    // Kh·ªüi t·∫°o m√†u s·∫Øc
+    boardColor = Color{220, 179, 92, 255};      // M√†u g·ªó cho b√†n c·ªù
     lineColor = BLACK;
     starPointColor = BLACK;
     blackStoneColor = Color{30, 30, 30, 255};
     whiteStoneColor = Color{245, 245, 245, 255};
-    hoverColor = Color{100, 100, 255, 100};     // M‡u xanh trong su—t
+    hoverColor = Color{100, 100, 255, 100};     // M√†u xanh hover
 }
 
 UI::~UI() {
-    // Destructor (khÙng cßn l‡m gÏ)
+    // Destructor (kh√¥ng c·∫ßn l√†m g√¨)
 }
 
-// ========== KHﬁI T†O V¿ ”NG RAYLIB ==========
+// ========== KH·ªûI T·∫†O V√ÄO WINDOW RAYLIB ==========
 void UI::init() {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Go Game - C› V‚y");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Go Game - C·ªù V√¢y");
     SetTargetFPS(60);
     initButtons();
 }
@@ -28,7 +28,7 @@ void UI::cleanup() {
     CloseWindow();
 }
 
-// ========== KHﬁI T†O V  TRÕ C¡C N⁄T ==========
+// ========== KH·ªûI T·∫†O V·ªä TR√ç C√ÅC N√öT ==========
 void UI::initButtons() {
     int buttonX = BOARD_OFFSET_X + BOARD_SIZE * CELL_SIZE + 50;
     int buttonY = BOARD_OFFSET_Y;
@@ -42,10 +42,10 @@ void UI::initButtons() {
     newGameButton = {(float)buttonX, (float)(buttonY + buttonSpacing * 3), (float)buttonWidth, (float)buttonHeight};
 }
 
-// ========== BÆT ¶U/KæT TH⁄C Vº ==========
+// ========== B·∫ÆT ƒê·∫¶U V·∫º/K·∫æT TH√öC V·∫º ==========
 void UI::beginDrawing() {
     BeginDrawing();
-    ClearBackground(Color{180, 140, 80, 255});  // M‡u n¡n n‚u nh°t
+    ClearBackground(Color{180, 140, 80, 255});  // M√†u n·ªÅn g·ªó
 }
 
 void UI::endDrawing() {
@@ -56,9 +56,9 @@ bool UI::shouldClose() {
     return WindowShouldClose();
 }
 
-// ========== Vº B¿N C‹ ==========
+// ========== V·∫º B√ÄN C·ªú ==========
 void UI::drawBoard() {
-    // VΩ n¡n b‡n c›
+    // V·∫Ω n·ªÅn b√†n c·ªù
     int boardPixelSize = (BOARD_SIZE - 1) * CELL_SIZE;
     DrawRectangle(
         BOARD_OFFSET_X - 20,
@@ -68,20 +68,20 @@ void UI::drawBoard() {
         boardColor
     );
 
-    // VΩ grid lines
+    // V·∫Ω grid lines
     drawGridLines();
 
-    // VΩ star points (9 i√m ∑c bi«t)
+    // V·∫Ω star points (9 ƒëi·ªÉm ƒë·∫∑c bi·ªát)
     drawStarPoints();
 
-    // VΩ tÕa Ÿ
+    // V·∫Ω t·ªça ƒë·ªô
     drawCoordinates();
 }
 
 void UI::drawGridLines() {
     int boardPixelSize = (BOARD_SIZE - 1) * CELL_SIZE;
 
-    // VΩ 19 ∞›ng ngang
+    // V·∫Ω 19 ƒë∆∞·ªùng ngang
     for (int i = 0; i < BOARD_SIZE; i++) {
         int y = BOARD_OFFSET_Y + i * CELL_SIZE;
         DrawLine(
@@ -93,7 +93,7 @@ void UI::drawGridLines() {
         );
     }
 
-    // VΩ 19 ∞›ng dÕc
+    // V·∫Ω 19 ƒë∆∞·ªùng d·ªçc
     for (int i = 0; i < BOARD_SIZE; i++) {
         int x = BOARD_OFFSET_X + i * CELL_SIZE;
         DrawLine(
@@ -107,7 +107,7 @@ void UI::drawGridLines() {
 }
 
 void UI::drawStarPoints() {
-    // 9 i√m sao trÍn b‡n c› 19x19: (4,4), (4,10), (4,16), (10,4), (10,10), (10,16), (16,4), (16,10), (16,16)
+    // 9 ƒëi·ªÉm sao tr√™n b√†n c·ªù 19x19: (4,4), (4,10), (4,16), (10,4), (10,10), (10,16), (16,4), (16,10), (16,16)
     int starPositions[9][2] = {
         {4, 4}, {4, 10}, {4, 16},
         {10, 4}, {10, 10}, {10, 16},
@@ -123,10 +123,10 @@ void UI::drawStarPoints() {
 }
 
 void UI::drawCoordinates() {
-    // VΩ chÔ A-T (bœ I) cho cŸt
+    // V·∫Ω ch·ªØ A-T (c·ªôt)
     const char* colLabels = "ABCDEFGHJKLMNOPQRST";
     for (int col = 1; col <= BOARD_SIZE; col++) {
-        Vector2 pos = boardToScreen(0, col);  // row = 0 (ngo‡i b‡n c›)
+        Vector2 pos = boardToScreen(0, col);  // row = 0 (ngo√†i c√πng b√†n c·ªù)
         DrawText(
             TextFormat("%c", colLabels[col - 1]),
             (int)pos.x - 5,
@@ -136,9 +136,9 @@ void UI::drawCoordinates() {
         );
     }
 
-    // VΩ s— 1-19 cho h‡ng
+    // V·∫Ω s·ªë 1-19 cho b√†n c·ªù
     for (int row = 1; row <= BOARD_SIZE; row++) {
-        Vector2 pos = boardToScreen(row, 0);  // col = 0 (ngo‡i b‡n c›)
+        Vector2 pos = boardToScreen(row, 0);  // col = 0 (ngo√†i b√†n c·ªù)
         DrawText(
             TextFormat("%d", BOARD_SIZE - row + 1),
             BOARD_OFFSET_X - 30,
@@ -149,7 +149,7 @@ void UI::drawCoordinates() {
     }
 }
 
-// ========== Vº QU¬N C‹ ==========
+// ========== V·∫º QU√ÇN C·ªú ==========
 void UI::drawStones(const Board& board) {
     for (int row = 1; row <= BOARD_SIZE; row++) {
         for (int col = 1; col <= BOARD_SIZE; col++) {
@@ -159,11 +159,11 @@ void UI::drawStones(const Board& board) {
                 Vector2 pos = boardToScreen(row, col);
                 Color stoneColor = (cell == 'B') ? blackStoneColor : whiteStoneColor;
 
-                // VΩ qu‚n c› v€i hi«u Èng bÛng
-                DrawCircle((int)pos.x + 2, (int)pos.y + 2, STONE_RADIUS, Color{0, 0, 0, 80});  // BÛng
-                DrawCircle((int)pos.x, (int)pos.y, STONE_RADIUS, stoneColor);  // Qu‚n c›
+                // V·∫Ω qu√¢n c·ªù v·ªõi hi·ªáu ·ª©ng ƒë·ªï b√≥ng
+                DrawCircle((int)pos.x + 2, (int)pos.y + 2, STONE_RADIUS, Color{0, 0, 0, 80});  // ƒë·ªï b√≥ng
+                DrawCircle((int)pos.x, (int)pos.y, STONE_RADIUS, stoneColor);  // Qu√¢n c·ªù
 
-                // VΩ vi¡n cho qu‚n trØng
+                // V·∫Ω vi·ªÅn cho qu√¢n tr·∫Øng
                 if (cell == 'W') {
                     DrawCircleLines((int)pos.x, (int)pos.y, STONE_RADIUS, Color{100, 100, 100, 255});
                 }
@@ -172,7 +172,7 @@ void UI::drawStones(const Board& board) {
     }
 }
 
-// ========== Vº HI∆U ËNG HOVER ==========
+// ========== V·∫º HI·ªÜU ·ª®NG HOVER ==========
 void UI::drawHoverEffect(int row, int col) {
     if (isInsideBoard(row, col)) {
         Vector2 pos = boardToScreen(row, col);
@@ -180,7 +180,7 @@ void UI::drawHoverEffect(int row, int col) {
     }
 }
 
-// ========== Vº TH‘NG TIN LØ‚T CH†I ==========
+// ========== V·∫º TH√îNG TIN L∆Ø·ª¢T CH∆†I ==========
 void UI::drawPlayerTurn(char currentPlayer) {
     const char* turnText = (currentPlayer == 'B') ? "Black's Turn" : "White's Turn";
     Color textColor = (currentPlayer == 'B') ? BLACK : Color{100, 100, 100, 255};
@@ -190,14 +190,14 @@ void UI::drawPlayerTurn(char currentPlayer) {
 
     DrawText(turnText, textX, textY, 30, textColor);
 
-    // VΩ qu‚n c› minh hÕa
+    // V·∫º QU√ÇN C·ªú MINH H·ªåA
     DrawCircle(textX + 70, textY + 60, 25, (currentPlayer == 'B') ? blackStoneColor : whiteStoneColor);
     if (currentPlayer == 'W') {
         DrawCircleLines(textX + 70, textY + 60, 25, Color{100, 100, 100, 255});
     }
 }
 
-// ========== Vº I¬M S– ==========
+// ========== V·∫º ƒêI·ªÇM S·ªê ==========
 void UI::drawScore(int blackArea, int whiteArea, int blackCapture, int whiteCapture) {
     int textX = BOARD_OFFSET_X + (BOARD_SIZE - 1) * CELL_SIZE + 50;
     int textY = BOARD_OFFSET_Y + 500;
@@ -211,7 +211,7 @@ void UI::drawScore(int blackArea, int whiteArea, int blackCapture, int whiteCapt
     DrawText(TextFormat("White: %d + %d + 7", whiteArea, whiteCapture), textX, textY + 65, 20, Color{100, 100, 100, 255});
 }
 
-// ========== Vº C¡C N⁄T ==========
+// ========== V·∫º C√ÅC N√öT ==========
 void UI::drawButtons() {
     // Undo button
     DrawRectangleRec(undoButton, Color{100, 150, 255, 255});
@@ -234,48 +234,57 @@ void UI::drawButtons() {
     DrawText("NEW GAME", (int)newGameButton.x + 20, (int)newGameButton.y + 15, 20, WHITE);
 }
 
-// ========== Vº M¿N HÃNH KæT TH⁄C ==========
+// ========== V·∫º M√ÄN H√åNH K·∫æT TH√öC ==========
 void UI::drawGameOver(char winner, int blackScore, int whiteScore) {
-    // VΩ overlay t—i
+    // V·∫º OVERLAY T·ªîNG TH·ªÇ
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color{0, 0, 0, 150});
 
-    // VΩ b£ng køt qu£
+    // V·∫º B·∫¢NG K·∫æT QU·∫¢
     int boxWidth = 500;
-    int boxHeight = 300;
+    int boxHeight = 350;
     int boxX = (SCREEN_WIDTH - boxWidth) / 2;
     int boxY = (SCREEN_HEIGHT - boxHeight) / 2;
 
     DrawRectangle(boxX, boxY, boxWidth, boxHeight, Color{240, 220, 180, 255});
     DrawRectangleLinesEx(Rectangle{(float)boxX, (float)boxY, (float)boxWidth, (float)boxHeight}, 5, BLACK);
 
-    // TiÍu ¡
+    // TI√äU ƒê·ªÄ
     DrawText("GAME OVER", boxX + 120, boxY + 30, 40, BLACK);
 
-    // Køt qu£
+    // K·∫æT QU·∫¢
     const char* winnerText = (winner == 'B') ? "BLACK WINS!" :
                             (winner == 'W') ? "WHITE WINS!" : "DRAW!";
     Color winnerColor = (winner == 'B') ? BLACK : Color{100, 100, 100, 255};
     DrawText(winnerText, boxX + 140, boxY + 100, 35, winnerColor);
 
-    // i√m s—
+    // ƒêI·ªÇM S·ªê
     DrawText(TextFormat("Black: %d points", blackScore), boxX + 120, boxY + 160, 25, BLACK);
     DrawText(TextFormat("White: %d points", whiteScore), boxX + 120, boxY + 195, 25, Color{100, 100, 100, 255});
 
-    // H∞€ng d´n
-    DrawText("Click NEW GAME to play again", boxX + 80, boxY + 250, 20, Color{150, 150, 150, 255});
+    // N√öT NEW GAME ·ªû GI·ªÆA PH√çA D∆Ø·ªöI
+    int buttonWidth = 200;
+    int buttonHeight = 60;
+    int buttonX = boxX + (boxWidth - buttonWidth) / 2;
+    int buttonY = boxY + boxHeight - buttonHeight - 30;
+
+    Rectangle gameOverNewGameButton = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
+
+    DrawRectangleRec(gameOverNewGameButton, Color{100, 200, 100, 255});
+    DrawRectangleLinesEx(gameOverNewGameButton, 3, BLACK);
+    DrawText("NEW GAME", buttonX + 40, buttonY + 18, 25, WHITE);
 }
 
-// ========== CHUY¬N ‘I TÃA ÿ ==========
+// ========== CHUY·ªÇN ƒê·ªîI T·ªåA ƒê·ªò ==========
 void UI::screenToBoard(Vector2 mousePos, int& row, int& col) {
-    // Chuy√n tÎ pixel sang tÕa Ÿ b‡n c›
+    // chuy·ªÉn t·ª´ pixel sang t·ªça ƒë·ªô b√†n c·ªù
     int relX = (int)mousePos.x - BOARD_OFFSET_X;
     int relY = (int)mousePos.y - BOARD_OFFSET_Y;
 
-    // L‡m trÚn øn Ù gßn nh•t
+    // L√†m tr√≤n ƒë·∫øn √¥ g·∫ßn nh·∫•t
     col = (relX + CELL_SIZE / 2) / CELL_SIZE + 1;
     row = (relY + CELL_SIZE / 2) / CELL_SIZE + 1;
 
-    // £m b£o trong ph°m vi 1-19
+    // ƒê·∫£m b·∫£o trong ph·∫°m vi 1-19
     if (col < 1) col = 1;
     if (col > BOARD_SIZE) col = BOARD_SIZE;
     if (row < 1) row = 1;
@@ -283,13 +292,13 @@ void UI::screenToBoard(Vector2 mousePos, int& row, int& col) {
 }
 
 Vector2 UI::boardToScreen(int row, int col) {
-    // Chuy√n tÎ tÕa Ÿ b‡n c› sang pixel
+    // Chuy·ªÉn t·ªça ƒë·ªô t·ª´ b√†n c·ªù sang pixel
     float x = BOARD_OFFSET_X + (col - 1) * CELL_SIZE;
     float y = BOARD_OFFSET_Y + (row - 1) * CELL_SIZE;
     return Vector2{x, y};
 }
 
-// ========== KI¬M TRA CLICK N⁄T ==========
+// ========== KI·ªÇM TRA CLICK CHU·ªòT ==========
 bool UI::isUndoButtonClicked(Vector2 mousePos) {
     return CheckCollisionPointRec(mousePos, undoButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
@@ -304,6 +313,23 @@ bool UI::isPassButtonClicked(Vector2 mousePos) {
 
 bool UI::isNewGameButtonClicked(Vector2 mousePos) {
     return CheckCollisionPointRec(mousePos, newGameButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
+bool UI::isNewGameButtonGameOverClicked(Vector2 mousePos) {
+    // T√≠nh to√°n v·ªã tr√≠ n√∫t NEW GAME trong game over box (gi·ªëng v·ªõi drawGameOver)
+    int boxWidth = 500;
+    int boxHeight = 350;
+    int boxX = (SCREEN_WIDTH - boxWidth) / 2;
+    int boxY = (SCREEN_HEIGHT - boxHeight) / 2;
+
+    int buttonWidth = 200;
+    int buttonHeight = 60;
+    int buttonX = boxX + (boxWidth - buttonWidth) / 2;
+    int buttonY = boxY + boxHeight - buttonHeight - 30;
+
+    Rectangle gameOverNewGameButton = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
+
+    return CheckCollisionPointRec(mousePos, gameOverNewGameButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
 // ========== HELPER FUNCTIONS ==========
