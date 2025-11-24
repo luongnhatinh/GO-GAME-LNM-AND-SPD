@@ -23,7 +23,10 @@ void Game::init() {
     // Khởi tạo UI (Raylib window) - CHỈ GỌI 1 LẦN
     ui.init();
 
-    // Khởi tạo game state
+    // Bắt đầu ở màn hình MENU
+    currentState = MENU;
+
+    // Khởi tạo game state (nhưng chưa chơi)
     resetGame();
 }
 
@@ -58,14 +61,32 @@ void Game::handleInput() {
     // Lấy vị trí chuột
     Vector2 mousePos = GetMousePosition();
 
+    // ===== XỬ LÝ INPUT THEO STATE =====
+    if (currentState == MENU) {
+        // Ở màn hình menu
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            if (ui.isPlayerVsPlayerClicked(mousePos)) {
+                // Chuyển sang chế độ chơi
+                currentState = PLAYING;
+                resetGame();
+                return;
+            }
+            ui.isPlayerVsAIClicked(mousePos);
+            // Click vào bất kỳ đâu để đóng notification (sẽ xử lý trong UI)
+        }
+        return;
+    }
+
+    // ===== XỬ LÝ INPUT KHI ĐANG CHƠI =====
     // Chuyển đổi pixel → (row, col) qua UI
     ui.screenToBoard(mousePos, hoverRow, hoverCol);
 
     // ===== XỬ LÝ CLICK CHUỘT =====
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        // Kiểm tra click nút NEW GAME trong game over screen trước
+        // Kiểm tra click nút MENU trong game over screen trước
         if (isGameOver && ui.isNewGameButtonGameOverClicked(mousePos)) {
-            handleNewGame();
+            // Quay về menu thay vì new game
+            currentState = MENU;
             return;
         }
 
@@ -252,31 +273,43 @@ void Game::update() {
 void Game::render() {
     ui.beginDrawing();
 
-    // Vẽ bàn cờ
-    ui.drawBoard();
-
-    // Vẽ tất cả quân cờ từ Board
-    ui.drawStones(board);
-
-    // Vẽ hiệu ứng hover (chỉ khi chưa game over)
-    if (!isGameOver) {
-        ui.drawHoverEffect(hoverRow, hoverCol);
+    // Debug: In ra state hiện tại (chỉ in 1 lần mỗi giây)
+    static int frameCount = 0;
+    if (frameCount++ % 60 == 0) {
+        std::cout << "Current State: " << (currentState == MENU ? "MENU" : "PLAYING") << std::endl;
     }
 
-    // Vẽ thông tin lượt chơi
-    ui.drawPlayerTurn(currentPlayer);
+    if (currentState == MENU) {
+        // Vẽ màn hình menu
+        ui.drawMenu();
+    } else {
+        // Vẽ màn hình chơi game
+        // Vẽ bàn cờ
+        ui.drawBoard();
 
-    // Vẽ điểm số hiện tại
-    std::pair<int, int> area = board.CountArea();
-    ui.drawScore(area.first, area.second,
-                 board.getBlackCapture(), board.getWhiteCapture());
+        // Vẽ tất cả quân cờ từ Board
+        ui.drawStones(board);
 
-    // Vẽ các nút
-    ui.drawButtons();
+        // Vẽ hiệu ứng hover (chỉ khi chưa game over)
+        if (!isGameOver) {
+            ui.drawHoverEffect(hoverRow, hoverCol);
+        }
 
-    // Nếu game over → vẽ màn hình kết thúc
-    if (isGameOver) {
-        ui.drawGameOver(winner, blackFinalScore, whiteFinalScore);
+        // Vẽ thông tin lượt chơi
+        ui.drawPlayerTurn(currentPlayer);
+
+        // Vẽ điểm số hiện tại
+        std::pair<int, int> area = board.CountArea();
+        ui.drawScore(area.first, area.second,
+                     board.getBlackCapture(), board.getWhiteCapture());
+
+        // Vẽ các nút
+        ui.drawButtons();
+
+        // Nếu game over → vẽ màn hình kết thúc
+        if (isGameOver) {
+            ui.drawGameOver(winner, blackFinalScore, whiteFinalScore);
+        }
     }
 
     ui.endDrawing();
