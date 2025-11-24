@@ -1,6 +1,8 @@
 #include "UI.h"
 #include <raylib.h>
 #include <string>
+#include <unistd.h>   // Cho getcwd()
+#include <stdio.h>    // Cho printf()
 
 // ========== CONSTRUCTOR/DESTRUCTOR ==========
 UI::UI() {
@@ -11,6 +13,10 @@ UI::UI() {
     blackStoneColor = Color{30, 30, 30, 255};
     whiteStoneColor = Color{245, 245, 245, 255};
     hoverColor = Color{100, 100, 255, 100};     // Màu xanh hover
+
+    // Khởi tạo menu state
+    showAINotification = false;
+    notificationFrameCounter = 0;
 }
 
 UI::~UI() {
@@ -22,9 +28,86 @@ void UI::init() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Go Game - Cờ Vây");
     SetTargetFPS(60);
     initButtons();
+    initMenuButtons();
+
+    // Debug: In working directory
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        printf("Current working directory: %s\n", cwd);
+    }
+
+    // ========== LOAD MENU TEXTURES ==========
+    printf("Loading menu textures...\n");
+
+    // Thử nhiều path khác nhau để load menu.png
+    const char* menuPaths[] = {
+        "media/menu.png",
+        "../../media/menu.png",
+        "../media/menu.png",
+        "menu.png",
+        "../../../media/menu.png"
+    };
+
+    menuTexture.id = 0;
+    for (int i = 0; i < 5; i++) {
+        printf("Trying path %d: %s\n", i+1, menuPaths[i]);
+        menuTexture = LoadTexture(menuPaths[i]);
+        if (menuTexture.id != 0) {
+            printf("SUCCESS! Menu background loaded from: %s (%dx%d)\n",
+                   menuPaths[i], menuTexture.width, menuTexture.height);
+            break;
+        }
+    }
+
+    if (menuTexture.id == 0) {
+        printf("ERROR: Failed to load menu.png from all paths!\n");
+    }
+
+    // Load button Player
+    const char* playerPaths[] = {
+        "media/button_player.png",
+        "../../media/button_player.png",
+        "../media/button_player.png"
+    };
+
+    buttonPlayerTexture.id = 0;
+    for (int i = 0; i < 3; i++) {
+        buttonPlayerTexture = LoadTexture(playerPaths[i]);
+        if (buttonPlayerTexture.id != 0) {
+            printf("Button Player loaded from: %s (%dx%d)\n",
+                   playerPaths[i], buttonPlayerTexture.width, buttonPlayerTexture.height);
+            break;
+        }
+    }
+    if (buttonPlayerTexture.id == 0) {
+        printf("ERROR: Failed to load button_player.png\n");
+    }
+
+    // Load button AI
+    const char* aiPaths[] = {
+        "media/button_AI.png",
+        "../../media/button_AI.png",
+        "../media/button_AI.png"
+    };
+
+    buttonAITexture.id = 0;
+    for (int i = 0; i < 3; i++) {
+        buttonAITexture = LoadTexture(aiPaths[i]);
+        if (buttonAITexture.id != 0) {
+            printf("Button AI loaded from: %s (%dx%d)\n",
+                   aiPaths[i], buttonAITexture.width, buttonAITexture.height);
+            break;
+        }
+    }
+    if (buttonAITexture.id == 0) {
+        printf("ERROR: Failed to load button_AI.png\n");
+    }
 }
 
 void UI::cleanup() {
+    UnloadTexture(menuTexture);
+    UnloadTexture(buttonPlayerTexture);
+    UnloadTexture(buttonAITexture);
     CloseWindow();
 }
 
@@ -261,7 +344,7 @@ void UI::drawGameOver(char winner, int blackScore, int whiteScore) {
     DrawText(TextFormat("Black: %d points", blackScore), boxX + 120, boxY + 160, 25, BLACK);
     DrawText(TextFormat("White: %d points", whiteScore), boxX + 120, boxY + 195, 25, Color{100, 100, 100, 255});
 
-    // NÚT NEW GAME Ở GIỮA PHÍA DƯỚI
+    // NÚT BACK TO MENU Ở GIỮA PHÍA DƯỚI
     int buttonWidth = 200;
     int buttonHeight = 60;
     int buttonX = boxX + (boxWidth - buttonWidth) / 2;
@@ -269,9 +352,9 @@ void UI::drawGameOver(char winner, int blackScore, int whiteScore) {
 
     Rectangle gameOverNewGameButton = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
 
-    DrawRectangleRec(gameOverNewGameButton, Color{100, 200, 100, 255});
+    DrawRectangleRec(gameOverNewGameButton, Color{100, 150, 255, 255});
     DrawRectangleLinesEx(gameOverNewGameButton, 3, BLACK);
-    DrawText("NEW GAME", buttonX + 40, buttonY + 18, 25, WHITE);
+    DrawText("MENU", buttonX + 65, buttonY + 18, 25, WHITE);
 }
 
 // ========== CHUYỂN ĐỔI TỌA ĐỘ ==========
@@ -330,6 +413,173 @@ bool UI::isNewGameButtonGameOverClicked(Vector2 mousePos) {
     Rectangle gameOverNewGameButton = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
 
     return CheckCollisionPointRec(mousePos, gameOverNewGameButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
+// ========== KHỞI TẠO NÚT MENU ==========
+void UI::initMenuButtons() {
+    // Vị trí các nút sẽ được tính khi vẽ dựa trên kích thước texture
+    // Placeholder - sẽ được update trong drawMenu()
+}
+
+// ========== VẼ MÀN HÌNH MENU ==========
+void UI::drawMenu() {
+    // Kiểm tra xem texture có được load không
+    if (menuTexture.id == 0) {
+        ClearBackground(Color{180, 140, 80, 255});
+        DrawText("ERROR: menu.png not found!", SCREEN_WIDTH/2 - 200, SCREEN_HEIGHT/2 - 50, 30, RED);
+        return;
+    }
+
+    // Vẽ ảnh menu background FULL SCREEN
+    DrawTexturePro(
+        menuTexture,
+        Rectangle{0, 0, (float)menuTexture.width, (float)menuTexture.height},
+        Rectangle{0, 0, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT},
+        Vector2{0, 0},
+        0.0f,
+        WHITE
+    );
+
+    // ========== VẼ BUTTON PLAYER VS PLAYER ==========
+    if (buttonPlayerTexture.id != 0) {
+        // Tính vị trí button (ở giữa màn hình, phía dưới, bên trái)
+        int buttonWidth = 400;  // Kích thước mong muốn
+        int buttonHeight = 100;
+        int spacing = 50;       // Khoảng cách giữa 2 button
+
+        int totalWidth = buttonWidth * 2 + spacing;
+        int startX = (SCREEN_WIDTH - totalWidth) / 2;
+        int startY = SCREEN_HEIGHT - buttonHeight - 100;  // 100px từ dưới lên
+
+        // Vị trí button Player
+        playerVsPlayerButton = Rectangle{
+            (float)startX,
+            (float)startY,
+            (float)buttonWidth,
+            (float)buttonHeight
+        };
+
+        // Vẽ button Player
+        DrawTexturePro(
+            buttonPlayerTexture,
+            Rectangle{0, 0, (float)buttonPlayerTexture.width, (float)buttonPlayerTexture.height},
+            playerVsPlayerButton,
+            Vector2{0, 0},
+            0.0f,
+            WHITE
+        );
+    }
+
+    // ========== VẼ BUTTON PLAYER VS AI ==========
+    if (buttonAITexture.id != 0) {
+        // Tính vị trí button AI (bên phải button Player)
+        int buttonWidth = 400;
+        int buttonHeight = 100;
+        int spacing = 50;
+
+        int totalWidth = buttonWidth * 2 + spacing;
+        int startX = (SCREEN_WIDTH - totalWidth) / 2;
+        int startY = SCREEN_HEIGHT - buttonHeight - 100;
+
+        // Vị trí button AI
+        playerVsAIButton = Rectangle{
+            (float)(startX + buttonWidth + spacing),
+            (float)startY,
+            (float)buttonWidth,
+            (float)buttonHeight
+        };
+
+        // Vẽ button AI
+        DrawTexturePro(
+            buttonAITexture,
+            Rectangle{0, 0, (float)buttonAITexture.width, (float)buttonAITexture.height},
+            playerVsAIButton,
+            Vector2{0, 0},
+            0.0f,
+            WHITE
+        );
+    }
+
+    // Vẽ thông báo AI nếu cần
+    if (showAINotification) {
+        drawAINotification();
+        // Xử lý đóng notification sẽ được handle trong drawAINotification()
+    }
+}
+
+// ========== VẼ THÔNG BÁO AI ==========
+void UI::drawAINotification() {
+    // Tăng frame counter
+    notificationFrameCounter++;
+
+    // Vẽ overlay tối (full screen)
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color{0, 0, 0, 180});
+
+    // Vẽ box thông báo
+    int boxWidth = 600;
+    int boxHeight = 200;
+    int boxX = (SCREEN_WIDTH - boxWidth) / 2;
+    int boxY = (SCREEN_HEIGHT - boxHeight) / 2;
+
+    DrawRectangle(boxX, boxY, boxWidth, boxHeight, Color{240, 220, 180, 255});
+    DrawRectangleLinesEx(Rectangle{(float)boxX, (float)boxY, (float)boxWidth, (float)boxHeight}, 5, BLACK);
+
+    // ========== NÚT X Ở GÓC TRÊN PHẢI ==========
+    int closeButtonSize = 40;
+    int closeButtonX = boxX + boxWidth - closeButtonSize - 10;
+    int closeButtonY = boxY + 10;
+
+    Rectangle closeButton = {(float)closeButtonX, (float)closeButtonY, (float)closeButtonSize, (float)closeButtonSize};
+
+    // Vẽ nút X
+    DrawRectangleRec(closeButton, Color{200, 80, 80, 255});
+    DrawRectangleLinesEx(closeButton, 2, BLACK);
+    DrawText("X", closeButtonX + 12, closeButtonY + 8, 25, WHITE);
+
+    // Title
+    DrawText("NOTIFICATION", boxX + 180, boxY + 30, 30, BLACK);
+
+    // Content
+    DrawText("Feature under development.", boxX + 140, boxY + 100, 20, BLACK);
+    DrawText("Please come back later!", boxX + 160, boxY + 130, 20, BLACK);
+
+    // ========== XỬ LÝ ĐÓNG THÔNG BÁO ==========
+    // CHỈ cho phép đóng SAU KHI đã hiển thị đủ 60 frames (~1 giây)
+    const int DELAY_FRAMES = 60;  // 1 giây với 60 FPS
+
+    if (notificationFrameCounter > DELAY_FRAMES && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mousePos = GetMousePosition();
+
+        // Check click vào nút X
+        if (CheckCollisionPointRec(mousePos, closeButton)) {
+            showAINotification = false;
+            notificationFrameCounter = 0;  // Reset counter
+            return;
+        }
+
+        // Check click vào vùng ngoài box (overlay)
+        Rectangle notificationBox = {(float)boxX, (float)boxY, (float)boxWidth, (float)boxHeight};
+        if (!CheckCollisionPointRec(mousePos, notificationBox)) {
+            // Click vào vùng ngoài box → đóng
+            showAINotification = false;
+            notificationFrameCounter = 0;  // Reset counter
+        }
+    }
+}
+
+// ========== KIỂM TRA CLICK NÚT MENU ==========
+bool UI::isPlayerVsPlayerClicked(Vector2 mousePos) {
+    return CheckCollisionPointRec(mousePos, playerVsPlayerButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
+
+bool UI::isPlayerVsAIClicked(Vector2 mousePos) {
+    // Chỉ check khi notification CHƯA hiện
+    if (!showAINotification && CheckCollisionPointRec(mousePos, playerVsAIButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        showAINotification = true;
+        notificationFrameCounter = 0;  // Reset counter khi mở notification
+        return true;
+    }
+    return false;
 }
 
 // ========== HELPER FUNCTIONS ==========

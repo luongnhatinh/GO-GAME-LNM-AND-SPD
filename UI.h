@@ -10,36 +10,40 @@ public:
     UI();
     ~UI();
 
-    // Kh�i t�o v� �ng Raylib window
+    // Khởi tạo và đóng Raylib window
     void init();
     void cleanup();
 
-    // V� c�c th�nh ph�n ch�nh
-    void drawBoard();                                      // V� grid 19x19
-    void drawStones(const Board& board);                   // V� qu�n c� t� Board
-    void drawHoverEffect(int row, int col);                // Highlight � ang hover
-    void drawPlayerTurn(char currentPlayer);               // Hi�n th� "Black's turn"
+    // Vẽ các thành phần chính
+    void drawBoard();                                      // Vẽ grid 19x19
+    void drawStones(const Board& board);                   // Vẽ quân cờ từ Board
+    void drawHoverEffect(int row, int col);                // Highlight ô đang hover
+    void drawPlayerTurn(char currentPlayer);               // Hiển thị "Black's turn"
     void drawScore(int blackArea, int whiteArea,
-                   int blackCapture, int whiteCapture);    // Hi�n th� i�m
-    void drawButtons();                                    // V� c�c n�t Undo/Redo/Pass
-    void drawGameOver(char winner, int blackScore, int whiteScore); // M�n h�nh k�t th�c
+                   int blackCapture, int whiteCapture);    // Hiển thị điểm
+    void drawButtons();                                    // Vẽ các nút Undo/Redo/Pass
+    void drawGameOver(char winner, int blackScore, int whiteScore); // Màn hình kết thúc
+    void drawMenu();                                       // Vẽ màn hình menu
+    void drawAINotification();                             // Vẽ thông báo AI chưa sẵn sàng
 
-    // Chuy�n �i t�a �
-    void screenToBoard(Vector2 mousePos, int& row, int& col);  // Pixel � (row, col)
-    Vector2 boardToScreen(int row, int col);                    // (row, col) � Pixel
+    // Chuyển đổi tọa độ
+    void screenToBoard(Vector2 mousePos, int& row, int& col);  // Pixel → (row, col)
+    Vector2 boardToScreen(int row, int col);                    // (row, col) → Pixel
 
-    // Ki�m tra click n�t
+    // Kiểm tra click nút
     bool isUndoButtonClicked(Vector2 mousePos);
     bool isRedoButtonClicked(Vector2 mousePos);
     bool isPassButtonClicked(Vector2 mousePos);
     bool isNewGameButtonClicked(Vector2 mousePos);
-    bool isNewGameButtonGameOverClicked(Vector2 mousePos);  // N�t NEW GAME trong m�n h�nh k�t th�c
+    bool isNewGameButtonGameOverClicked(Vector2 mousePos);  // Nút NEW GAME trong màn hình kết thúc
+    bool isPlayerVsPlayerClicked(Vector2 mousePos);         // Nút Player vs Player trong menu
+    bool isPlayerVsAIClicked(Vector2 mousePos);             // Nút Player vs AI trong menu
 
-    // B�t �u/k�t th�c v� frame
+    // Bắt đầu/kết thúc vẽ frame
     void beginDrawing();
     void endDrawing();
 
-    // Ki�m tra window c� n�n �ng kh�ng
+    // Kiểm tra window có nên đóng không
     bool shouldClose();
 
 private:
@@ -58,6 +62,15 @@ private:
     Rectangle passButton;
     Rectangle newGameButton;
 
+    // ========== MENU ==========
+    Texture2D menuTexture;
+    Texture2D buttonPlayerTexture;
+    Texture2D buttonAITexture;
+    Rectangle playerVsPlayerButton;
+    Rectangle playerVsAIButton;
+    bool showAINotification;
+    int notificationFrameCounter;  // Đếm frame từ khi mở notification
+
     // ========== COLORS ==========
     Color boardColor;
     Color lineColor;
@@ -68,10 +81,11 @@ private:
 
     // ========== HELPER FUNCTIONS ==========
     void drawGridLines();
-    void drawStarPoints();       // V� c�c i�m sao (hoshi) tr�n b�n c�
-    void drawCoordinates();      // V� t�a � A-T, 1-19
-    void initButtons();          // Kh�i t�o v� tr� c�c n�t
-    bool isInsideBoard(int row, int col);  // Ki�m tra t�a � c� trong b�n c� kh�ng
+    void drawStarPoints();       // Vẽ các điểm sao (hoshi) trên bàn cờ
+    void drawCoordinates();      // Vẽ tọa độ A-T, 1-19
+    void initButtons();          // Khởi tạo vị trí các nút
+    void initMenuButtons();      // Khởi tạo vị trí nút menu
+    bool isInsideBoard(int row, int col);  // Kiểm tra tọa độ có trong bàn cờ không
 };
 
 #endif // UI_H_INCLUDED

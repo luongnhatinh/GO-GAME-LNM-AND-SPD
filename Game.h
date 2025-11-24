@@ -11,6 +11,13 @@
 #include "board.h"
 #include "UI.h"
 
+// ========== GAME STATE ENUM ==========
+enum GameState {
+    MENU,       // Màn hình menu
+    PLAYING,    // Đang chơi
+    GAME_OVER   // Kết thúc (không dùng vì isGameOver đã handle)
+};
+
 class Game {
 public:
     // Hàm duy nhất được gọi từ main()
@@ -22,6 +29,7 @@ private:
     UI ui;                          // Giao diện UI
 
     // ========== GAME STATE ==========
+    GameState currentState;         // Trạng thái hiện tại (MENU/PLAYING)
     char currentPlayer;             // 'B' (Black) hoặc 'W' (White)
     bool isGameOver;                // Game đã kết thúc chưa?
     char winner;                    // 'B', 'W', hoặc 'D' (Draw)
