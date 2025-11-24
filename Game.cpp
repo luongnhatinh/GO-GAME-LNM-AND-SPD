@@ -61,6 +61,83 @@ void Game::handleInput() {
     // Lấy vị trí chuột
     Vector2 mousePos = GetMousePosition();
 
+    // ===== XỬ LÝ TEXT INPUT CHO SAVE POPUP =====
+    if (ui.showSavePopup) {
+        int key = GetCharPressed();
+        while (key > 0) {
+            ui.handleTextInput(key);
+            key = GetCharPressed();
+        }
+        // Handle backspace
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            ui.handleTextInput(KEY_BACKSPACE);
+        }
+        // Handle ENTER to save
+        if (IsKeyPressed(KEY_ENTER)) {
+            std::string savePath = ui.getSaveGameName();
+            if (!savePath.empty()) {
+                ui.saveRequested = true;  // Signal save request
+                ui.showSavePopup = false;
+            }
+        }
+        return;  // Don't process other input while save popup is open
+    }
+
+    // ===== XỬ LÝ SAVE REQUEST =====
+    if (ui.saveRequested) {
+        std::string savePath = ui.getSaveGameName();
+        std::cout << "=== SAVE REQUEST ===" << std::endl;
+        std::cout << "Save path: '" << savePath << "'" << std::endl;
+        std::cout << "Save name length: " << ui.getSaveGameNameLength() << std::endl;
+        std::cout << "Save name buffer: '" << ui.getSaveGameNameBuffer() << "'" << std::endl;
+
+        if (!savePath.empty()) {
+            std::cout << "Calling board.SaveGame()..." << std::endl;
+            if (board.SaveGame(savePath)) {
+                std::cout << "SUCCESS! Game saved to: " << savePath << std::endl;
+            } else {
+                std::cout << "ERROR! Failed to save game to: " << savePath << std::endl;
+            }
+        } else {
+            std::cout << "ERROR! Save path is empty!" << std::endl;
+        }
+        ui.saveRequested = false;  // Reset flag
+    }
+
+    // ===== XỬ LÝ LOAD REQUEST =====
+    if (ui.loadRequested) {
+        std::string loadPath = ui.getSelectedSaveFile();
+        std::cout << "=== LOAD REQUEST ===" << std::endl;
+        std::cout << "Load path: '" << loadPath << "'" << std::endl;
+        std::cout << "Selected index: " << ui.selectedSaveIndex << std::endl;
+
+        if (!loadPath.empty()) {
+            std::cout << "Calling board.LoadGame()..." << std::endl;
+            if (board.LoadGame(loadPath)) {
+                std::cout << "SUCCESS! Game loaded from: " << loadPath << std::endl;
+                // Sync game state with loaded board
+                currentPlayer = board.getCurrentPlayer();
+                isGameOver = false;
+                consecutivePasses = 0;
+                // Clear history after loading
+                while (!history.empty()) history.pop();
+                while (!redoStack.empty()) redoStack.pop();
+            } else {
+                std::cout << "ERROR! Failed to load game from: " << loadPath << std::endl;
+            }
+        } else {
+            std::cout << "ERROR! Load path is empty!" << std::endl;
+        }
+        ui.loadRequested = false;  // Reset flag
+        ui.selectedSaveIndex = -1;  // Reset selection
+    }
+
+    // ===== XỬ LÝ LOAD POPUP =====
+    if (ui.showLoadPopup) {
+        // Load popup handles its own input in drawLoadGamePopup()
+        return;  // Don't process other input while load popup is open
+    }
+
     // ===== XỬ LÝ INPUT THEO STATE =====
     if (currentState == MENU) {
         // Ở màn hình menu
@@ -105,6 +182,14 @@ void Game::handleInput() {
         }
         if (ui.isNewGameButtonClicked(mousePos)) {
             handleNewGame();
+            return;
+        }
+        if (ui.isSaveGameButtonClicked(mousePos)) {
+            // Open save popup (handled in UI)
+            return;
+        }
+        if (ui.isLoadGameButtonClicked(mousePos)) {
+            // Open load popup (handled in UI)
             return;
         }
 
@@ -309,6 +394,14 @@ void Game::render() {
         // Nếu game over → vẽ màn hình kết thúc
         if (isGameOver) {
             ui.drawGameOver(winner, blackFinalScore, whiteFinalScore);
+        }
+
+        // Vẽ save/load popups nếu đang mở
+        if (ui.showSavePopup) {
+            ui.drawSaveGamePopup();
+        }
+        if (ui.showLoadPopup) {
+            ui.drawLoadGamePopup();
         }
     }
 

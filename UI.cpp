@@ -3,6 +3,9 @@
 #include <string>
 #include <unistd.h>   // Cho getcwd()
 #include <stdio.h>    // Cho printf()
+#include <filesystem>
+#include <ctime>
+#include <sys/stat.h>
 
 // ========== CONSTRUCTOR/DESTRUCTOR ==========
 UI::UI() {
@@ -17,6 +20,18 @@ UI::UI() {
     // Khởi tạo menu state
     showAINotification = false;
     notificationFrameCounter = 0;
+
+    // Khởi tạo save/load state
+    showSavePopup = false;
+    showLoadPopup = false;
+    selectedSaveIndex = -1;
+    saveGameNameLength = 0;
+    saveGameNameBuffer[0] = '\0';
+    scrollOffset = 0;
+    saveRequested = false;
+    loadRequested = false;
+    loadPopupFrameCounter = 0;
+    saveGameDirectory = detectSaveGameDirectory();  // Tự động phát hiện đường dẫn
 }
 
 UI::~UI() {
@@ -123,6 +138,8 @@ void UI::initButtons() {
     redoButton = {(float)buttonX, (float)(buttonY + buttonSpacing), (float)buttonWidth, (float)buttonHeight};
     passButton = {(float)buttonX, (float)(buttonY + buttonSpacing * 2), (float)buttonWidth, (float)buttonHeight};
     newGameButton = {(float)buttonX, (float)(buttonY + buttonSpacing * 3), (float)buttonWidth, (float)buttonHeight};
+    saveGameButton = {(float)buttonX, (float)(buttonY + buttonSpacing * 4), (float)buttonWidth, (float)buttonHeight};
+    loadGameButton = {(float)buttonX, (float)(buttonY + buttonSpacing * 5), (float)buttonWidth, (float)buttonHeight};
 }
 
 // ========== BẮT ĐẦU VẼ/KẾT THÚC VẼ ==========
@@ -315,6 +332,16 @@ void UI::drawButtons() {
     DrawRectangleRec(newGameButton, Color{255, 100, 100, 255});
     DrawRectangleLinesEx(newGameButton, 2, BLACK);
     DrawText("NEW GAME", (int)newGameButton.x + 20, (int)newGameButton.y + 15, 20, WHITE);
+
+    // Save Game button
+    DrawRectangleRec(saveGameButton, Color{100, 200, 100, 255});
+    DrawRectangleLinesEx(saveGameButton, 2, BLACK);
+    DrawText("SAVE", (int)saveGameButton.x + 45, (int)saveGameButton.y + 15, 20, WHITE);
+
+    // Load Game button
+    DrawRectangleRec(loadGameButton, Color{200, 100, 200, 255});
+    DrawRectangleLinesEx(loadGameButton, 2, BLACK);
+    DrawText("LOAD", (int)loadGameButton.x + 45, (int)loadGameButton.y + 15, 20, WHITE);
 }
 
 // ========== VẼ MÀN HÌNH KẾT THÚC ==========
@@ -582,7 +609,261 @@ bool UI::isPlayerVsAIClicked(Vector2 mousePos) {
     return false;
 }
 
+bool UI::isSaveGameButtonClicked(Vector2 mousePos) {
+    if (CheckCollisionPointRec(mousePos, saveGameButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        showSavePopup = true;
+        saveGameNameLength = 0;
+        saveGameNameBuffer[0] = '\0';
+        return true;
+    }
+    return false;
+}
+
+bool UI::isLoadGameButtonClicked(Vector2 mousePos) {
+    if (CheckCollisionPointRec(mousePos, loadGameButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        showLoadPopup = true;
+        loadSavedGamesList();  // Load danh sách game khi mở popup
+        selectedSaveIndex = -1;
+        loadPopupFrameCounter = 0;  // Reset frame counter
+        return true;
+    }
+    return false;
+}
+
 // ========== HELPER FUNCTIONS ==========
 bool UI::isInsideBoard(int row, int col) {
     return (row >= 1 && row <= BOARD_SIZE && col >= 1 && col <= BOARD_SIZE);
+}
+
+std::string UI::detectSaveGameDirectory() {
+    namespace fs = std::filesystem;
+
+    // Try current directory first (Code::Blocks case - running from root)
+    if (fs::exists("save_game")) {
+        return "save_game";
+    }
+
+    // Try parent directory (VS Code case - running from build/)
+    if (fs::exists("../save_game")) {
+        return "../save_game";
+    }
+
+    // If neither exists, default to current directory
+    // (will create folder when needed)
+    return "save_game";
+}
+
+// ========== SAVE/LOAD POPUP IMPLEMENTATIONS ==========
+
+
+void UI::drawSaveGamePopup() {
+    // Overlay
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color{0, 0, 0, 180});
+
+    // Popup box
+    int boxWidth = 500;
+    int boxHeight = 250;
+    int boxX = (SCREEN_WIDTH - boxWidth) / 2;
+    int boxY = (SCREEN_HEIGHT - boxHeight) / 2;
+
+    DrawRectangle(boxX, boxY, boxWidth, boxHeight, Color{240, 220, 180, 255});
+    DrawRectangleLinesEx(Rectangle{(float)boxX, (float)boxY, (float)boxWidth, (float)boxHeight}, 5, BLACK);
+
+    // Title
+    DrawText("SAVE GAME", boxX + 160, boxY + 30, 30, BLACK);
+
+    // Instruction
+    DrawText("Enter save name:", boxX + 50, boxY + 80, 20, BLACK);
+
+    // Text input box
+    Rectangle textBox = {(float)(boxX + 50), (float)(boxY + 110), (float)(boxWidth - 100), 40};
+    DrawRectangleRec(textBox, WHITE);
+    DrawRectangleLinesEx(textBox, 2, BLACK);
+    DrawText(saveGameNameBuffer, (int)textBox.x + 10, (int)textBox.y + 10, 20, BLACK);
+
+    // Blinking cursor
+    if ((GetTime() * 2) - (int)(GetTime() * 2) < 0.5) {
+        int cursorX = (int)textBox.x + 10 + MeasureText(saveGameNameBuffer, 20);
+        DrawText("_", cursorX, (int)textBox.y + 10, 20, BLACK);
+    }
+
+    // SAVE button
+    Rectangle saveButton = {(float)(boxX + 150), (float)(boxY + 180), 100, 40};
+    DrawRectangleRec(saveButton, Color{100, 200, 100, 255});
+    DrawRectangleLinesEx(saveButton, 2, BLACK);
+    DrawText("SAVE", (int)saveButton.x + 25, (int)saveButton.y + 10, 20, WHITE);
+
+    // CANCEL button
+    Rectangle cancelButton = {(float)(boxX + 270), (float)(boxY + 180), 100, 40};
+    DrawRectangleRec(cancelButton, Color{200, 100, 100, 255});
+    DrawRectangleLinesEx(cancelButton, 2, BLACK);
+    DrawText("CANCEL", (int)cancelButton.x + 15, (int)cancelButton.y + 10, 20, WHITE);
+
+    // Handle mouse clicks
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mousePos = GetMousePosition();
+
+        // SAVE button clicked
+        if (CheckCollisionPointRec(mousePos, saveButton) && saveGameNameLength > 0) {
+            printf("SAVE button clicked! Name: '%s', Length: %d\n", saveGameNameBuffer, saveGameNameLength);
+            saveRequested = true;  // Signal that save was requested
+            showSavePopup = false;
+            printf("saveRequested set to TRUE, popup closed\n");
+        }
+
+        // CANCEL button clicked
+        if (CheckCollisionPointRec(mousePos, cancelButton)) {
+            printf("CANCEL button clicked\n");
+            showSavePopup = false;
+        }
+    }
+}
+
+void UI::drawLoadGamePopup() {
+    // Increment frame counter
+    loadPopupFrameCounter++;
+
+    // Overlay
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color{0, 0, 0, 180});
+
+    // Popup box (larger for list)
+    int boxWidth = 700;
+    int boxHeight = 500;
+    int boxX = (SCREEN_WIDTH - boxWidth) / 2;
+    int boxY = (SCREEN_HEIGHT - boxHeight) / 2;
+
+    DrawRectangle(boxX, boxY, boxWidth, boxHeight, Color{240, 220, 180, 255});
+    DrawRectangleLinesEx(Rectangle{(float)boxX, (float)boxY, (float)boxWidth, (float)boxHeight}, 5, BLACK);
+
+    // Title
+    DrawText("LOAD GAME", boxX + 260, boxY + 30, 30, BLACK);
+
+    // Close X button
+    int closeButtonSize = 40;
+    int closeButtonX = boxX + boxWidth - closeButtonSize - 10;
+    int closeButtonY = boxY + 10;
+    Rectangle closeButton = {(float)closeButtonX, (float)closeButtonY, (float)closeButtonSize, (float)closeButtonSize};
+    DrawRectangleRec(closeButton, Color{200, 80, 80, 255});
+    DrawRectangleLinesEx(closeButton, 2, BLACK);
+    DrawText("X", closeButtonX + 12, closeButtonY + 8, 25, WHITE);
+
+    // List area
+    int listY = boxY + 80;
+    int itemHeight = 60;
+    int maxVisible = 6;
+
+    if (savedGamesList.empty()) {
+        DrawText("No saved games found.", boxX + 220, listY + 100, 20, BLACK);
+    } else {
+        // Draw saved games list
+        for (int i = 0; i < (int)savedGamesList.size() && i < maxVisible; i++) {
+            int itemY = listY + i * itemHeight;
+            Rectangle itemRect = {(float)(boxX + 30), (float)itemY, (float)(boxWidth - 60), (float)(itemHeight - 10)};
+
+            // Highlight if selected
+            Color bgColor = (i == selectedSaveIndex) ? Color{200, 200, 255, 255} : Color{255, 255, 255, 255};
+            DrawRectangleRec(itemRect, bgColor);
+            DrawRectangleLinesEx(itemRect, 2, BLACK);
+
+            // Draw game name
+            DrawText(savedGamesList[i].c_str(), (int)itemRect.x + 10, (int)itemRect.y + 8, 20, BLACK);
+
+            // Draw timestamp
+            DrawText(savedGamesTime[i].c_str(), (int)itemRect.x + 10, (int)itemRect.y + 32, 16, Color{100, 100, 100, 255});
+        }
+    }
+
+    // ========== XỬ LÝ CLICK CHỈ SAU KHI ĐỦ DELAY ==========
+    const int DELAY_FRAMES = 30;  // 0.5 giây với 60 FPS
+
+    if (loadPopupFrameCounter > DELAY_FRAMES && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mousePos = GetMousePosition();
+
+        // Check click vào nút X
+        if (CheckCollisionPointRec(mousePos, closeButton)) {
+            showLoadPopup = false;
+            selectedSaveIndex = -1;
+            loadPopupFrameCounter = 0;
+            return;
+        }
+
+        // Check click vào saved game items
+        if (!savedGamesList.empty()) {
+            for (int i = 0; i < (int)savedGamesList.size() && i < maxVisible; i++) {
+                int itemY = listY + i * itemHeight;
+                Rectangle itemRect = {(float)(boxX + 30), (float)itemY, (float)(boxWidth - 60), (float)(itemHeight - 10)};
+
+                if (CheckCollisionPointRec(mousePos, itemRect)) {
+                    selectedSaveIndex = i;
+                    loadRequested = true;  // Signal that load was requested
+                    showLoadPopup = false;
+                    loadPopupFrameCounter = 0;
+                    printf("Load game requested: index %d\n", i);
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void UI::loadSavedGamesList() {
+    savedGamesList.clear();
+    savedGamesTime.clear();
+
+    namespace fs = std::filesystem;
+
+    // Create save_game directory if it doesn't exist
+    if (!fs::exists(saveGameDirectory)) {
+        fs::create_directory(saveGameDirectory);
+        return;
+    }
+
+    // List all .gogame files
+    for (const auto& entry : fs::directory_iterator(saveGameDirectory)) {
+        if (entry.path().extension() == ".gogame") {
+            std::string filename = entry.path().filename().string();
+
+            // Remove .gogame extension for display
+            std::string displayName = filename.substr(0, filename.length() - 7);
+            savedGamesList.push_back(displayName);
+
+            // Get file modification time
+            struct stat fileInfo;
+            if (stat(entry.path().string().c_str(), &fileInfo) == 0) {
+                char timeStr[100];
+                strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", localtime(&fileInfo.st_mtime));
+                savedGamesTime.push_back(std::string(timeStr));
+            } else {
+                savedGamesTime.push_back("Unknown time");
+            }
+        }
+    }
+}
+
+std::string UI::getSelectedSaveFile() {
+    if (selectedSaveIndex >= 0 && selectedSaveIndex < (int)savedGamesList.size()) {
+        return saveGameDirectory + "/" + savedGamesList[selectedSaveIndex] + ".gogame";
+    }
+    return "";
+}
+
+std::string UI::getSaveGameName() {
+    if (saveGameNameLength > 0) {
+        return saveGameDirectory + "/" + std::string(saveGameNameBuffer) + ".gogame";
+    }
+    return "";
+}
+
+void UI::handleTextInput(int key) {
+    if (!showSavePopup) return;
+
+    if (key == KEY_BACKSPACE && saveGameNameLength > 0) {
+        saveGameNameLength--;
+        saveGameNameBuffer[saveGameNameLength] = '\0';
+    } else if (key >= 32 && key <= 125 && saveGameNameLength < 99) {
+        // Printable characters
+        saveGameNameBuffer[saveGameNameLength] = (char)key;
+        saveGameNameLength++;
+        saveGameNameBuffer[saveGameNameLength] = '\0';
+    }
 }
