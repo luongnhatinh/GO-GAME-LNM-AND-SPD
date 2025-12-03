@@ -17,8 +17,8 @@
 class Board {
 public:
     Board();
-    Board(const Board& other);  // Copy constructor - QUAN TRỌNG!
-    bool PlaceStone(int row, int col);  // Board tự quản lý player
+    Board(const Board& other);  // Copy constructor
+    bool PlaceStone(int row, int col);
     void PrintBoard();
     bool Capture(int row, int col);
     std::pair<int,int> CountArea() const ;
@@ -28,8 +28,6 @@ public:
     void Undo_Board();
     void Redo_Board();
     Board& operator=(const Board& other);
-
-    // Getter methods for UI
     char getCell(int row, int col) const {
         return board[row][col];
     }
@@ -59,4 +57,4 @@ private:
     std::stack<Board> undo;
     std::stack<Board>redo;
 };
-#endif // BOARD_H_INCLUDED
+#endif

@@ -24,16 +24,11 @@ Board::Board() {
     player='B';
     undo.push(*this);
 }
-
-// Copy constructor - FIX MEMORY LEAK
-// CHỈ copy game state, KHÔNG copy stack undo/redo để tránh đệ quy vô hạn
 Board::Board(const Board& other) {
     memcpy(this->board, other.board, sizeof(this->board));
     this->BlackStoneCapture = other.BlackStoneCapture;
     this->WhiteStoneCapture = other.WhiteStoneCapture;
     this->player = other.player;  // Copy player
-    // KHÔNG copy undo và redo
-    // Stack undo/redo của object mới sẽ TRỐNG
 }
 std::vector<std::pair<int,int>> Board::AllValidMove() const {
     std::vector<std::pair<int,int>>v;
@@ -146,7 +141,7 @@ NumberAndTypeOfArea Board::BfsArea(int row, int col,bool VisitedLiberties[20][20
                 else if (board[i1][j1]=='B') {
                     TouchedBlack=true;
                 }
-                else if (board[i1][j1]=='W') {  // ← FIX: Chỉ khi THỰC SỰ là quân trắng
+                else if (board[i1][j1]=='W') {
                     TouchedWhite=true;
                 }
             }
@@ -210,7 +205,7 @@ Board& Board::operator=(const Board& other) {
     this->player=other.player;
     return *this;
 }
-bool Board::SaveGame(string filename) {
+bool Board::SaveGame(string filename) {     //DO SAVEGAME
     ofstream fout;
     fout.open(filename);
     if(!fout.is_open()) {

@@ -4,37 +4,33 @@
 #include <raylib.h>
 #include <iostream>
 
-// ========== GAME LOOP CHÍNH ==========
+// GAME LOOP CHÍNH
 void Game::run() {
     init();
 
-    // Game loop - chạy cho đến khi đóng window
+    //chạy cho đến khi đóng window
     while (!ui.shouldClose()) {
         handleInput();
         update();
         render();
     }
-
     cleanup();
 }
 
-// ========== KHỞI TẠO GAME ==========
+//KHỞI TẠO
 void Game::init() {
-    // Khởi tạo UI (Raylib window) - CHỈ GỌI 1 LẦN
+    // tạo UI
     ui.init();
-
-    // Bắt đầu ở màn hình MENU
     currentState = MENU;
-
-    // Khởi tạo game state (nhưng chưa chơi)
+    // Khởi tạo game state
     resetGame();
 }
 
-// ========== RESET GAME STATE ==========
+//  RESET GAME STATE
 void Game::resetGame() {
-    // Reset game state (KHÔNG tạo window mới)
-    board = Board();                           // Tạo bàn cờ mới (tự set player = 'B')
-    currentPlayer = board.getCurrentPlayer();  // Đồng bộ với Board
+    // Reset game state
+    board = Board();                           // Tạo bàn cờ mới
+    currentPlayer = board.getCurrentPlayer();
     isGameOver = false;
     winner = ' ';
     consecutivePasses = 0;
@@ -47,7 +43,7 @@ void Game::resetGame() {
     while (!history.empty()) history.pop();
     while (!redoStack.empty()) redoStack.pop();
 
-    // Debug output
+
     std::cout << "=== RESET GAME ===" << std::endl;
     std::cout << "Black Capture: " << board.getBlackCapture() << std::endl;
     std::cout << "White Capture: " << board.getWhiteCapture() << std::endl;
@@ -56,34 +52,32 @@ void Game::resetGame() {
     std::cout << "White Area: " << area.second << std::endl;
 }
 
-// ========== XỬ LÝ INPUT ==========
+//  XỬ LÝ INPUT
 void Game::handleInput() {
     // Lấy vị trí chuột
     Vector2 mousePos = GetMousePosition();
 
-    // ===== XỬ LÝ TEXT INPUT CHO SAVE POPUP =====
+    //XỬ LÝ TEXT INPUT
     if (ui.showSavePopup) {
         int key = GetCharPressed();
         while (key > 0) {
             ui.handleTextInput(key);
             key = GetCharPressed();
         }
-        // Handle backspace
         if (IsKeyPressed(KEY_BACKSPACE)) {
             ui.handleTextInput(KEY_BACKSPACE);
         }
-        // Handle ENTER to save
         if (IsKeyPressed(KEY_ENTER)) {
             std::string savePath = ui.getSaveGameName();
             if (!savePath.empty()) {
-                ui.saveRequested = true;  // Signal save request
+                ui.saveRequested = true;
                 ui.showSavePopup = false;
             }
         }
-        return;  // Don't process other input while save popup is open
+        return;
     }
 
-    // ===== XỬ LÝ SAVE REQUEST =====
+    // XỬ LÝ SAVE
     if (ui.saveRequested) {
         std::string savePath = ui.getSaveGameName();
         std::cout << "=== SAVE REQUEST ===" << std::endl;
@@ -101,10 +95,10 @@ void Game::handleInput() {
         } else {
             std::cout << "ERROR! Save path is empty!" << std::endl;
         }
-        ui.saveRequested = false;  // Reset flag
+        ui.saveRequested = false;
     }
 
-    // ===== XỬ LÝ LOAD REQUEST =====
+    //XỬ LÝ LOAD
     if (ui.loadRequested) {
         std::string loadPath = ui.getSelectedSaveFile();
         std::cout << "=== LOAD REQUEST ===" << std::endl;
@@ -128,19 +122,17 @@ void Game::handleInput() {
         } else {
             std::cout << "ERROR! Load path is empty!" << std::endl;
         }
-        ui.loadRequested = false;  // Reset flag
-        ui.selectedSaveIndex = -1;  // Reset selection
+        ui.loadRequested = false;
+        ui.selectedSaveIndex = -1;
     }
 
-    // ===== XỬ LÝ LOAD POPUP =====
+    //XỬ LÝ LOAD POPUP
     if (ui.showLoadPopup) {
-        // Load popup handles its own input in drawLoadGamePopup()
-        return;  // Don't process other input while load popup is open
+        return;
     }
 
-    // ===== XỬ LÝ INPUT THEO STATE =====
+    // XỬ LÝ INPUT THEO STATE
     if (currentState == MENU) {
-        // Ở màn hình menu
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             if (ui.isPlayerVsPlayerClicked(mousePos)) {
                 // Chuyển sang chế độ chơi
@@ -149,25 +141,21 @@ void Game::handleInput() {
                 return;
             }
             ui.isPlayerVsAIClicked(mousePos);
-            // Click vào bất kỳ đâu để đóng notification (sẽ xử lý trong UI)
         }
         return;
     }
 
-    // ===== XỬ LÝ INPUT KHI ĐANG CHƠI =====
-    // Chuyển đổi pixel → (row, col) qua UI
+    // XỬ LÝ INPUT KHI ĐANG CHƠI
+    // Chuyển đổi pixel → (row, col)
     ui.screenToBoard(mousePos, hoverRow, hoverCol);
 
-    // ===== XỬ LÝ CLICK CHUỘT =====
+    //XỬ LÝ CLICK CHUỘT
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         // Kiểm tra click nút MENU trong game over screen trước
         if (isGameOver && ui.isNewGameButtonGameOverClicked(mousePos)) {
-            // Quay về menu thay vì new game
             currentState = MENU;
             return;
         }
-
-        // Kiểm tra click nút trước
         if (ui.isUndoButtonClicked(mousePos)) {
             handleUndo();
             return;
@@ -199,7 +187,7 @@ void Game::handleInput() {
         }
     }
 
-    // ===== XỬ LÝ PHÍM TẮT =====
+    //XỬ LÝ PHÍM TẮT
     if (IsKeyPressed(KEY_U)) {
         handleUndo();
     }
@@ -211,29 +199,26 @@ void Game::handleInput() {
     }
 }
 
-// ========== XỬ LÝ ĐẶT QUÂN ==========
+//XỬ LÝ ĐẶT QUÂN
 void Game::handleStonePlace(int row, int col) {
-    // LƯU VÀO HISTORY TRƯỚC KHI ĐẶT QUÂN
     history.push(board);  // Lưu trạng thái hiện tại
-
     // Thử đặt quân vào Board (Board tự quản lý player và tự switch)
     bool success = board.PlaceStone(row, col);
 
     if (success) {
-        // Đặt quân thành công
-        consecutivePasses = 0;  // Reset số lần pass
-        currentPlayer = board.getCurrentPlayer();  // Đồng bộ với Board (đã switch)
-        checkGameOver();         // Kiểm tra kết thúc
+        consecutivePasses = 0;
+        currentPlayer = board.getCurrentPlayer();  // Đồng bộ với Board
+        checkGameOver();
 
-        // Clear redo stack (không thể redo sau khi đặt quân mới)
+        // Clear redo stack
         while (!redoStack.empty()) redoStack.pop();
     } else {
-        // Đặt quân thất bại → Xóa snapshot vừa lưu
+        // Đặt quân thất bại
         history.pop();
     }
 }
 
-// ========== XỬ LÝ UNDO ==========
+//XỬ LÝ UNDO
 void Game::handleUndo() {
     // Kiểm tra có history không
     if (history.empty()) {
@@ -241,14 +226,14 @@ void Game::handleUndo() {
         return;
     }
 
-    // Lưu trạng thái hiện tại vào redo stack
+    // Lưu trạng thái hiện tại vào redo
     redoStack.push(board);
 
     // Khôi phục trạng thái trước đó
     board = history.top();
     history.pop();
 
-    // Đồng bộ currentPlayer với Board (Board đã có player cũ)
+    // Đồng bộ currentPlayer với Board
     currentPlayer = board.getCurrentPlayer();
 
     // Reset game over nếu đang ở trạng thái kết thúc
@@ -258,34 +243,26 @@ void Game::handleUndo() {
     }
 }
 
-// ========== XỬ LÝ REDO ==========
+// XỬ LÝ REDO
 void Game::handleRedo() {
     // Kiểm tra có redo stack không
     if (redoStack.empty()) {
         std::cout << "No moves to redo!" << std::endl;
         return;
     }
-
-    // Lưu trạng thái hiện tại vào history
     history.push(board);
-
-    // Khôi phục trạng thái từ redo stack
     board = redoStack.top();
     redoStack.pop();
-
-    // Đồng bộ currentPlayer với Board
     currentPlayer = board.getCurrentPlayer();
 }
 
-// ========== XỬ LÝ PASS ==========
+// XỬ LÝ PASS
 void Game::handlePass() {
     if (isGameOver) {
-        return;  // Không cho pass khi game đã kết thúc
+        return;
     }
 
     consecutivePasses++;
-
-    // Board tự switch player
     board.switchPlayer();
     currentPlayer = board.getCurrentPlayer();
 
@@ -294,19 +271,17 @@ void Game::handlePass() {
     std::cout << "Player passed. Consecutive passes: " << consecutivePasses << std::endl;
 }
 
-// ========== XỬ LÝ NEW GAME ==========
+// XỬ LÝ NEW GAME
 void Game::handleNewGame() {
-    resetGame();  // Reset game state (KHÔNG tạo window mới)
+    resetGame();  // Reset game state
 }
 
-// ========== CHUYỂN LƯỢT CHƠI ==========
+//CHUYỂN LƯỢT CHƠI
 void Game::switchPlayer() {
-    // Không còn cần thiết vì Board tự quản lý player
-    // Giữ lại để backward compatibility
     currentPlayer = (currentPlayer == 'B') ? 'W' : 'B';
 }
 
-// ========== KIỂM TRA KẾT THÚC GAME ==========
+//KIỂM TRA KẾT THÚC GAME
 void Game::checkGameOver() {
     // Điều kiện kết thúc: 2 người chơi đều pass liên tiếp
     if (consecutivePasses >= 2) {
@@ -319,7 +294,7 @@ void Game::checkGameOver() {
     }
 }
 
-// ========== TÍNH ĐIỂM CUỐI CÙNG ==========
+//TÍNH ĐIỂM CUỐI CÙNG
 void Game::calculateFinalScore() {
     // Lấy số lãnh thổ từ Board
     std::pair<int, int> area = board.CountArea();
@@ -334,7 +309,7 @@ void Game::calculateFinalScore() {
     // Black: Lãnh thổ + Quân bắt được
     blackFinalScore = blackArea + blackCapture;
 
-    // White: Lãnh thổ + Quân bắt được + Komi 7.5 (làm tròn = 7)
+    // White: Lãnh thổ + Quân bắt được +  6.5 (làm tròn = 7)
     // Komi là điểm bù cho White vì Black đi trước
     whiteFinalScore = whiteArea + whiteCapture + 7;
 
@@ -344,59 +319,36 @@ void Game::calculateFinalScore() {
     } else if (whiteFinalScore > blackFinalScore) {
         winner = 'W';
     } else {
-        winner = 'D';  // Draw (hòa)
+        winner = 'D';
     }
 }
-
-// ========== CẬP NHẬT LOGIC ==========
 void Game::update() {
-    // Hiện tại không có logic cần cập nhật mỗi frame
-    // Có thể thêm animation, timer, v.v. sau
 }
 
-// ========== VẼ UI ==========
+//VẼ UI
 void Game::render() {
     ui.beginDrawing();
-
-    // Debug: In ra state hiện tại (chỉ in 1 lần mỗi giây)
     static int frameCount = 0;
     if (frameCount++ % 60 == 0) {
         std::cout << "Current State: " << (currentState == MENU ? "MENU" : "PLAYING") << std::endl;
     }
 
     if (currentState == MENU) {
-        // Vẽ màn hình menu
         ui.drawMenu();
     } else {
-        // Vẽ màn hình chơi game
-        // Vẽ bàn cờ
         ui.drawBoard();
-
-        // Vẽ tất cả quân cờ từ Board
         ui.drawStones(board);
-
-        // Vẽ hiệu ứng hover (chỉ khi chưa game over)
         if (!isGameOver) {
             ui.drawHoverEffect(hoverRow, hoverCol);
         }
-
-        // Vẽ thông tin lượt chơi
         ui.drawPlayerTurn(currentPlayer);
-
-        // Vẽ điểm số hiện tại
         std::pair<int, int> area = board.CountArea();
         ui.drawScore(area.first, area.second,
                      board.getBlackCapture(), board.getWhiteCapture());
-
-        // Vẽ các nút
         ui.drawButtons();
-
-        // Nếu game over → vẽ màn hình kết thúc
         if (isGameOver) {
             ui.drawGameOver(winner, blackFinalScore, whiteFinalScore);
         }
-
-        // Vẽ save/load popups nếu đang mở
         if (ui.showSavePopup) {
             ui.drawSaveGamePopup();
         }
@@ -407,8 +359,6 @@ void Game::render() {
 
     ui.endDrawing();
 }
-
-// ========== DỌN DẸP ==========
 void Game::cleanup() {
     ui.cleanup();
 }
