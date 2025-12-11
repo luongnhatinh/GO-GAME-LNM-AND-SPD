@@ -23,8 +23,10 @@ public:
     bool Capture(int row, int col);
     std::pair<int,int> CountArea() const ;
     std::vector<std::pair<int,int>> AllValidMove() const;
+    std::vector<std::pair<int,int>> quickMove() const;
     // cham diem the co
     int evaluateBoard(char AI_player)const ;
+    int quickeval(char AI_player) const;
     void Undo_Board();
     void Redo_Board();
     Board& operator=(const Board& other);
