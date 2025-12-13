@@ -1,23 +1,13 @@
-//#include <iostream>
-//#include "board.h"
-//#include "Game.h"
-//#include "AI.h"
-//#include <vector>
-//#include <utility>
-//#include <stack>
-//#include <cstring>
-//#include <queue>
-//using namespace std;
-//int main() {
-    //ios_base::sync_with_stdio(0);
-//    Game game;
-//    game.run();
-//    return 0;
-//}
 #include <iostream>
-#include <chrono> // Thư viện đo thời gian
 #include "board.h"
+#include "Game.h"
 #include "AI.h"
+#include <vector>
+#include <utility>
+#include <stack>
+#include <cstring>
+#include <queue>
+#include <chrono> // Thư viện đo thời gian
 
 using namespace std;
 using namespace std::chrono;
@@ -47,6 +37,8 @@ void TestAIPerformance() {
 }
 
 int main() {
-    TestAIPerformance();
+    //TestAIPerformance();
+    Game game;
+    game.run();
     return 0;
 }

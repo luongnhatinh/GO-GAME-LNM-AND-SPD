@@ -135,7 +135,7 @@
 	<ctime>
 	<sys/stat.h>
 
-1765446760 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.cpp
+1765447877 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.cpp
 	"AI.h"
 	"board.h"
 	<cstdlib>
@@ -196,11 +196,17 @@
 	<string>
 	"board.h"
 
-1765446917 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\main.cpp
+1765632023 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\main.cpp
 	<iostream>
-	<chrono>
 	"board.h"
+	"Game.h"
 	"AI.h"
+	<vector>
+	<utility>
+	<stack>
+	<cstring>
+	<queue>
+	<chrono>
 
 1764325312 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ui.cpp
 	"UI.h"
