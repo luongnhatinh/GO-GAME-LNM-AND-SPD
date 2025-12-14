@@ -122,7 +122,7 @@ std::pair<int,int> AI::FindBestMove(const Board&  board,char AI_player,Difficult
             // Nếu chỉ có 1 nước đi duy nhất, đánh luôn khỏi tính
             if (Move.size() == 1) return Move[0];
 
-            long long timeLimitMs = 1200;
+            long long timeLimitMs = 1000;
             if (level == Difficulty::Medium) timeLimitMs = 500;
             if (level == Difficulty::Easy) timeLimitMs = 10;
 

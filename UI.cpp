@@ -1244,3 +1244,129 @@ void UI::handleTextInput(int key) {
         saveGameNameBuffer[saveGameNameLength] = '\0';
     }
 }
+
+// ========== VẼ MENU SETTINGS (CHỌN NHẠC) ==========
+void UI::drawSettingsMenu(const std::vector<std::string>& songNames, int currentSongIndex, int hoveredSongIndex) {
+    // Vẽ background Menu_Blanks (giống như difficulty menu)
+    if (menuBlanksTexture.id != 0) {
+        DrawTexturePro(
+            menuBlanksTexture,
+            Rectangle{0, 0, (float)menuBlanksTexture.width, (float)menuBlanksTexture.height},
+            Rectangle{0, 0, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT},
+            Vector2{0, 0},
+            0.0f,
+            WHITE
+        );
+    } else {
+        ClearBackground(Color{180, 140, 80, 255});
+    }
+
+    // ========== VẼ NÚT BACK (góc trên bên trái) ==========
+    int backButtonSize = 80;
+    int backButtonX = (int)(SCREEN_WIDTH * 0.1);  // 10% từ trái = 140
+    int backButtonY = (int)(SCREEN_HEIGHT * 0.3); // 30% từ trên = 270
+
+    if (buttonBackTexture.id != 0) {
+        Rectangle backBtn = {(float)backButtonX, (float)backButtonY, (float)backButtonSize, (float)backButtonSize};
+
+        DrawTexturePro(
+            buttonBackTexture,
+            Rectangle{0, 0, (float)buttonBackTexture.width, (float)buttonBackTexture.height},
+            backBtn,
+            Vector2{0, 0},
+            0.0f,
+            WHITE
+        );
+    }
+
+    // ========== VẼ TIÊU ĐỀ "SETTINGS - CHANGE MUSIC" ==========
+    const char* titleText = "SETTING - CHANGE MUSIC";
+    int titleFontSize = 50;
+    int titleWidth = MeasureText(titleText, titleFontSize);
+    int titleX = (SCREEN_WIDTH - titleWidth) / 2;
+    int titleY = 380;  // Vùng 60% dưới
+
+    // Vẽ text với outline dày
+    drawTextWithOutline(titleText, titleX, titleY, titleFontSize, WHITE, BLACK, 4);
+
+    // ========== VẼ DANH SÁCH BÀI HÁT ==========
+    int listStartY = 470;
+    int itemHeight = 50;
+    int itemSpacing = 20;
+    int listWidth = 450;
+    int listX = (SCREEN_WIDTH - listWidth) / 2;  // = 475
+
+    for (int i = 0; i < (int)songNames.size(); i++) {
+        int itemY = listStartY + i * (itemHeight + itemSpacing);
+
+        // Xác định màu cho item
+        Color bgColor;
+        Color textColor;
+
+        if (i == currentSongIndex) {
+            // Bài đang phát → màu RED nổi bật
+            bgColor = Color{220, 50, 50, 255};
+            textColor = WHITE;
+        } else if (i == hoveredSongIndex) {
+            // Bài đang hover → màu ORANGE
+            bgColor = Color{255, 140, 0, 255};
+            textColor = WHITE;
+        } else {
+            // Bài thường → màu nhạt
+            bgColor = Color{200, 200, 200, 200};
+            textColor = BLACK;
+        }
+
+        // Vẽ background của item
+        Rectangle itemRect = {(float)listX, (float)itemY, (float)listWidth, (float)itemHeight};
+        DrawRectangleRec(itemRect, bgColor);
+        DrawRectangleLinesEx(itemRect, 3, BLACK);
+
+        // Vẽ tên bài hát
+        int textX = listX + 20;
+        int textY = itemY + 12;
+        DrawText(songNames[i].c_str(), textX, textY, 28, textColor);
+
+        // Nếu là bài đang phát → hiển thị "Playing"
+        if (i == currentSongIndex) {
+            const char* playingText = "Playing";
+            int playingWidth = MeasureText(playingText, 22);
+            int playingX = listX + listWidth - playingWidth - 20;
+            int playingY = itemY + 14;
+            DrawText(playingText, playingX, playingY, 22, Color{0, 255, 100, 255});  // Màu xanh lá
+        }
+    }
+
+    // ========== VẼ NÚT "CHOOSE THIS MUSIC" (KHỚP VỚI Game.cpp) ==========
+    int buttonWidth = 300;
+    int buttonHeight = 60;
+    int buttonX = (SCREEN_WIDTH - buttonWidth) / 2;  // Center horizontally = 550
+    int buttonY = 740;  // Vị trí cuối danh sách bài hát (khớp với Game.cpp)
+
+    if (buttonBlanksTexture.id != 0) {
+        Rectangle confirmBtn = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
+
+        // Vẽ button background
+        DrawTexturePro(
+            buttonBlanksTexture,
+            Rectangle{0, 0, (float)buttonBlanksTexture.width, (float)buttonBlanksTexture.height},
+            confirmBtn,
+            Vector2{0, 0},
+            0.0f,
+            WHITE
+        );
+
+        // Vẽ text trên button
+        const char* btnText = "CHOOSE THIS MUSIC";
+        int btnTextWidth = MeasureText(btnText, 24);
+        int btnTextX = buttonX + (buttonWidth - btnTextWidth) / 2;
+        int btnTextY = buttonY + 18;
+        drawTextWithOutline(btnText, btnTextX, btnTextY, 24, WHITE, BLACK, 2);
+
+        // Hiệu ứng hover trên button
+        Vector2 mousePos = GetMousePosition();
+        if (CheckCollisionPointRec(mousePos, confirmBtn)) {
+            DrawRectangleLinesEx(confirmBtn, 4, Color{255, 255, 0, 255});  // Viền vàng khi hover
+        }
+    }
+}

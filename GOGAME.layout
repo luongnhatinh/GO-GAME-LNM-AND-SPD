@@ -2,14 +2,19 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Release" />
-	<File name="UI.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="main.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="17929" topLine="262" />
+			<Cursor1 position="415" topLine="97" />
 		</Cursor>
 	</File>
-	<File name="AI.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="AI.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3925" topLine="101" />
+			<Cursor1 position="450" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="UI.cpp" open="1" top="1" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="50193" topLine="1294" />
 		</Cursor>
 	</File>
 	<File name="board.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -17,22 +22,7 @@
 			<Cursor1 position="1726" topLine="13" />
 		</Cursor>
 	</File>
-	<File name="UI.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4667" topLine="91" />
-		</Cursor>
-	</File>
-	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4035" topLine="58" />
-		</Cursor>
-	</File>
-	<File name="Game.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="973" topLine="45" />
-		</Cursor>
-	</File>
-	<File name="board.cpp" open="1" top="1" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="board.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="9262" topLine="0" />
 		</Cursor>
@@ -54,24 +44,30 @@
 			<Collapse line="226" />
 		</Folding>
 	</File>
-	<File name="AI.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Game.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="450" topLine="0" />
+			<Cursor1 position="1446" topLine="26" />
+		</Cursor>
+	</File>
+	<File name="AI.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4177" topLine="104" />
+		</Cursor>
+	</File>
+	<File name="UI.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6916" topLine="107" />
 		</Cursor>
 	</File>
 	<File name="Game.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="8698" topLine="387" />
+			<Cursor1 position="23185" topLine="632" />
 		</Cursor>
 		<Folding>
-			<Collapse line="230" />
-			<Collapse line="253" />
-			<Collapse line="269" />
-			<Collapse line="283" />
-			<Collapse line="289" />
-			<Collapse line="292" />
-			<Collapse line="306" />
-			<Collapse line="332" />
+			<Collapse line="683" />
+			<Collapse line="710" />
+			<Collapse line="735" />
+			<Collapse line="776" />
 		</Folding>
 	</File>
 </CodeBlocks_layout_file>

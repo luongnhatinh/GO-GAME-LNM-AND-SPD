@@ -27,6 +27,7 @@ public:
     void drawGameOver(char winner, int blackScore, int whiteScore); // Màn hình kết thúc
     void drawMenu();                                       // Vẽ màn hình menu
     void drawDifficultyMenu();                             // Vẽ màn hình chọn độ khó
+    void drawSettingsMenu(const std::vector<std::string>& songNames, int currentSongIndex, int hoveredSongIndex);  // Vẽ màn hình Settings (chọn nhạc)
     void drawAINotification();                             // Vẽ thông báo AI chưa sẵn sàng
     void drawSaveGamePopup();                              // Vẽ popup save game
     void drawLoadGamePopup();                              // Vẽ popup load game

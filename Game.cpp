@@ -22,6 +22,70 @@ void Game::init() {
     // tạo UI
     ui.init();
     currentState = MENU;
+
+    // ========== KHỞI TẠO MUSIC SYSTEM ==========
+    InitAudioDevice();
+
+    // ========== LOAD MENU BACKGROUND MUSIC ==========
+    const char* menuMusicPaths[] = {
+        "media/menu_background_music.mp3",
+        "../../media/menu_background_music.mp3",
+        "../media/menu_background_music.mp3"
+    };
+
+    menuBackgroundMusic = {0};
+    for (int i = 0; i < 3; i++) {
+        menuBackgroundMusic = LoadMusicStream(menuMusicPaths[i]);
+        if (menuBackgroundMusic.stream.buffer != NULL) {
+            printf("Loaded menu background music from: %s\n", menuMusicPaths[i]);
+            break;
+        }
+    }
+
+    if (menuBackgroundMusic.stream.buffer == NULL) {
+        printf("WARNING: Failed to load menu_background_music.mp3\n");
+    } else {
+        menuBackgroundMusic.looping = true;
+        PlayMusicStream(menuBackgroundMusic);
+        printf("Playing menu background music\n");
+    }
+
+    // ========== LOAD 3 IN-GAME SONGS ==========
+    const char* musicPaths[][3] = {
+        {"media/Song1.mp3", "../../media/Song1.mp3", "../media/Song1.mp3"},
+        {"media/Song2.mp3", "../../media/Song2.mp3", "../media/Song2.mp3"},
+        {"media/Song3.mp3", "../../media/Song3.mp3", "../media/Song3.mp3"}
+    };
+
+    for (int i = 0; i < 3; i++) {
+        Music loadedMusic = {0};
+        for (int j = 0; j < 3; j++) {
+            loadedMusic = LoadMusicStream(musicPaths[i][j]);
+            if (loadedMusic.stream.buffer != NULL) {
+                printf("Loaded %s from path: %s\n",
+                       (i == 0 ? "Song1" : i == 1 ? "Song2" : "Song3"),
+                       musicPaths[i][j]);
+                break;
+            }
+        }
+        musicList.push_back(loadedMusic);
+    }
+
+    // Đặt tên hiển thị cho các bài hát in-game
+    songNames.push_back("Bai hat 1");
+    songNames.push_back("Bai hat 2");
+    songNames.push_back("Bai hat 3");
+
+    // Mặc định chọn bài 1 cho in-game (chưa phát, chỉ phát khi vào PLAYING)
+    currentSongIndex = 0;
+    hoveredSongIndex = 0;
+    isPreviewingMusic = false;
+
+    // Bật loop cho tất cả bài hát in-game
+    for (auto& music : musicList) {
+        music.looping = true;
+    }
+
     // Khởi tạo game state
     resetGame();
 }
@@ -152,6 +216,15 @@ void Game::handleInput() {
                 ui.showMenuConfirmDialog = false;
                 ui.resetToMainMenu();
                 currentState = MENU;
+
+                // Dừng in-game music, phát lại menu music
+                if (musicList[currentSongIndex].stream.buffer != NULL) {
+                    StopMusicStream(musicList[currentSongIndex]);
+                }
+                if (menuBackgroundMusic.stream.buffer != NULL) {
+                    PlayMusicStream(menuBackgroundMusic);
+                    printf("Returned to menu, playing menu background music\n");
+                }
                 return;
             }
 
@@ -171,6 +244,13 @@ void Game::handleInput() {
                 // Chuyển sang chế độ chơi
                 currentState = PLAYING;
                 resetGame();
+
+                // Dừng menu music, phát in-game music
+                StopMusicStream(menuBackgroundMusic);
+                if (musicList[currentSongIndex].stream.buffer != NULL) {
+                    PlayMusicStream(musicList[currentSongIndex]);
+                    printf("Switched to in-game music: %s\n", songNames[currentSongIndex].c_str());
+                }
                 return;
             }
             // Xử lý click vào button AI để mở difficulty menu
@@ -189,6 +269,13 @@ void Game::handleInput() {
                     aiDifficulty = Difficulty::Easy;
                     aiPlayer = 'W';  // AI chơi quân trắng, player chơi quân đen
                     printf("AI Mode: ON | Difficulty: EASY | AI plays: WHITE\n");
+
+                    // Dừng menu music, phát in-game music
+                    StopMusicStream(menuBackgroundMusic);
+                    if (musicList[currentSongIndex].stream.buffer != NULL) {
+                        PlayMusicStream(musicList[currentSongIndex]);
+                        printf("Switched to in-game music: %s\n", songNames[currentSongIndex].c_str());
+                    }
                     return;
                 }
 
@@ -203,6 +290,13 @@ void Game::handleInput() {
                     aiDifficulty = Difficulty::Medium;
                     aiPlayer = 'W';  // AI chơi quân trắng, player chơi quân đen
                     printf("AI Mode: ON | Difficulty: MEDIUM | AI plays: WHITE\n");
+
+                    // Dừng menu music, phát in-game music
+                    StopMusicStream(menuBackgroundMusic);
+                    if (musicList[currentSongIndex].stream.buffer != NULL) {
+                        PlayMusicStream(musicList[currentSongIndex]);
+                        printf("Switched to in-game music: %s\n", songNames[currentSongIndex].c_str());
+                    }
                     return;
                 }
 
@@ -217,6 +311,13 @@ void Game::handleInput() {
                     aiDifficulty = Difficulty::Hard;
                     aiPlayer = 'W';  // AI chơi quân trắng, player chơi quân đen
                     printf("AI Mode: ON | Difficulty: HARD | AI plays: WHITE\n");
+
+                    // Dừng menu music, phát in-game music
+                    StopMusicStream(menuBackgroundMusic);
+                    if (musicList[currentSongIndex].stream.buffer != NULL) {
+                        PlayMusicStream(musicList[currentSongIndex]);
+                        printf("Switched to in-game music: %s\n", songNames[currentSongIndex].c_str());
+                    }
                     return;
                 }
 
@@ -229,12 +330,25 @@ void Game::handleInput() {
 
             // Settings button chỉ ở main menu, không ở difficulty menu
             if (!ui.showDifficultyMenu && ui.isPlayerVsSettingClicked(mousePos)) {
-                // TODO: Thêm chức năng settings ở đây
-                printf("Settings button clicked! (Feature not implemented yet)\n");
+                printf("Settings button clicked! Opening Settings menu...\n");
+                currentState = SETTINGS;
+                hoveredSongIndex = currentSongIndex;  // Reset hover về bài đang phát
+                isPreviewingMusic = false;
+
+                // Stop menu music khi vào Settings (để preview nhạc in-game)
+                StopMusicStream(menuBackgroundMusic);
+                printf("Stopped menu music for preview mode\n");
+                return;
             }
 
             // Click vào bất kỳ đâu để đóng notification (sẽ xử lý trong UI)
         }
+        return;
+    }
+
+    // ===== XỬ LÝ INPUT TRONG SETTINGS MENU =====
+    if (currentState == SETTINGS) {
+        handleSettingsInput();
         return;
     }
 
@@ -249,6 +363,15 @@ void Game::handleInput() {
             // Quay về menu chính (reset về main menu, không phải difficulty menu)
             ui.resetToMainMenu();
             currentState = MENU;
+
+            // Dừng in-game music, phát lại menu music
+            if (musicList[currentSongIndex].stream.buffer != NULL) {
+                StopMusicStream(musicList[currentSongIndex]);
+            }
+            if (menuBackgroundMusic.stream.buffer != NULL) {
+                PlayMusicStream(menuBackgroundMusic);
+                printf("Returned to menu from game over, playing menu background music\n");
+            }
             return;
         }
         if (ui.isUndoButtonClicked(mousePos)) {
@@ -453,7 +576,93 @@ void Game::handleAITurn() {
     }
 }
 
-// ========== CHUYỂN LƯỢT CHƠI ==========
+//XỬ LÝ INPUT TRONG SETTINGS MENU
+void Game::handleSettingsInput() {
+    Vector2 mousePos = GetMousePosition();
+
+    // ========== TỌA ĐỘ KHỚP VỚI UI.CPP ==========
+    const int SCREEN_WIDTH = 1400;
+    const int SCREEN_HEIGHT = 900;
+
+    // Vùng danh sách bài hát (khớp với UI.cpp)
+    int listStartY = 470;
+    int itemHeight = 50;
+    int itemSpacing = 20;
+    int listWidth = 450;
+    int listX = (SCREEN_WIDTH - listWidth) / 2;  // = 475
+
+    // Xử lý hover trên các bài hát
+    hoveredSongIndex = -1;
+    for (int i = 0; i < (int)songNames.size(); i++) {
+        int itemY = listStartY + i * (itemHeight + itemSpacing);
+        Rectangle itemRect = {(float)listX, (float)itemY, (float)listWidth, (float)itemHeight};
+
+        if (CheckCollisionPointRec(mousePos, itemRect)) {
+            hoveredSongIndex = i;
+
+            // Click vào bài hát → preview nhạc ngay lập tức
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                // Dừng bài preview hiện tại (nếu có)
+                if (isPreviewingMusic && musicList[currentSongIndex].stream.buffer != NULL) {
+                    StopMusicStream(musicList[currentSongIndex]);
+                }
+
+                // Preview bài mới
+                currentSongIndex = i;
+                isPreviewingMusic = true;
+                if (musicList[currentSongIndex].stream.buffer != NULL) {
+                    PlayMusicStream(musicList[currentSongIndex]);
+                    printf("Previewing %s\n", songNames[i].c_str());
+                }
+            }
+        }
+    }
+
+    // Nút "CHOOSE THIS MUSIC" (confirm button) - khớp với UI.cpp
+    int buttonWidth = 300;
+    int buttonHeight = 60;
+    int buttonX = (SCREEN_WIDTH - buttonWidth) / 2;  // Center horizontally
+    int buttonY = 740;  // Vị trí cuối danh sách bài hát
+    Rectangle confirmButton = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
+
+    if (CheckCollisionPointRec(mousePos, confirmButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        // Stop preview music
+        if (isPreviewingMusic && musicList[currentSongIndex].stream.buffer != NULL) {
+            StopMusicStream(musicList[currentSongIndex]);
+        }
+
+        // Quay về menu chính, phát lại menu background music
+        currentState = MENU;
+        isPreviewingMusic = false;
+        if (menuBackgroundMusic.stream.buffer != NULL) {
+            PlayMusicStream(menuBackgroundMusic);
+            printf("Settings confirmed, returned to menu with menu music\n");
+        }
+    }
+
+    // Nút Back (góc trên bên trái) - khớp với UI.cpp
+    int backButtonSize = 80;
+    int backButtonX = (int)(SCREEN_WIDTH * 0.1);   // = 140
+    int backButtonY = (int)(SCREEN_HEIGHT * 0.3);  // = 270
+    Rectangle backButtonRect = {(float)backButtonX, (float)backButtonY, (float)backButtonSize, (float)backButtonSize};
+
+    if (CheckCollisionPointRec(mousePos, backButtonRect) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        // Stop preview music
+        if (isPreviewingMusic && musicList[currentSongIndex].stream.buffer != NULL) {
+            StopMusicStream(musicList[currentSongIndex]);
+        }
+
+        // Quay về menu chính, phát lại menu background music
+        currentState = MENU;
+        isPreviewingMusic = false;
+        if (menuBackgroundMusic.stream.buffer != NULL) {
+            PlayMusicStream(menuBackgroundMusic);
+            printf("Back button clicked, returned to menu with menu music\n");
+        }
+    }
+}
+
+//CHUYỂN LƯỢT CHƠI
 void Game::switchPlayer() {
     currentPlayer = (currentPlayer == 'B') ? 'W' : 'B';
 }
@@ -500,6 +709,27 @@ void Game::calculateFinalScore() {
     }
 }
 void Game::update() {
+    // Cập nhật music stream tùy theo state hiện tại
+    if (currentState == MENU) {
+        // Ở menu → update menu background music
+        if (menuBackgroundMusic.stream.buffer != NULL) {
+            UpdateMusicStream(menuBackgroundMusic);
+        }
+    } else if (currentState == SETTINGS) {
+        // Ở Settings → update preview music (nếu đang preview)
+        if (isPreviewingMusic && currentSongIndex >= 0 && currentSongIndex < (int)musicList.size()) {
+            if (musicList[currentSongIndex].stream.buffer != NULL) {
+                UpdateMusicStream(musicList[currentSongIndex]);
+            }
+        }
+    } else if (currentState == PLAYING) {
+        // Đang chơi game → update in-game music
+        if (currentSongIndex >= 0 && currentSongIndex < (int)musicList.size()) {
+            if (musicList[currentSongIndex].stream.buffer != NULL) {
+                UpdateMusicStream(musicList[currentSongIndex]);
+            }
+        }
+    }
 }
 
 //VẼ UI
@@ -507,11 +737,14 @@ void Game::render() {
     ui.beginDrawing();
     static int frameCount = 0;
     if (frameCount++ % 60 == 0) {
-        std::cout << "Current State: " << (currentState == MENU ? "MENU" : "PLAYING") << std::endl;
+        std::cout << "Current State: " << (currentState == MENU ? "MENU" : currentState == SETTINGS ? "SETTINGS" : "PLAYING") << std::endl;
     }
 
     if (currentState == MENU) {
         ui.drawMenu();
+    } else if (currentState == SETTINGS) {
+        // Vẽ Settings menu với music list
+        ui.drawSettingsMenu(songNames, currentSongIndex, hoveredSongIndex);
     } else {
         ui.drawBoard();
         ui.drawStones(board);
@@ -542,5 +775,18 @@ void Game::render() {
     ui.endDrawing();
 }
 void Game::cleanup() {
+    // Unload menu background music
+    if (menuBackgroundMusic.stream.buffer != NULL) {
+        UnloadMusicStream(menuBackgroundMusic);
+    }
+
+    // Unload tất cả in-game music streams
+    for (auto& music : musicList) {
+        if (music.stream.buffer != NULL) {
+            UnloadMusicStream(music);
+        }
+    }
+
+    CloseAudioDevice();
     ui.cleanup();
 }

@@ -15,6 +15,7 @@
 //GAME STATE ENUM
 enum GameState {
     MENU,
+    SETTINGS,
     PLAYING,
     GAME_OVER
 };
@@ -49,6 +50,14 @@ private:
     int blackFinalScore;
     int whiteFinalScore;
 
+    // ========== MUSIC SYSTEM ==========
+    Music menuBackgroundMusic;              // Nhạc nền cho menu (phát từ đầu đến khi vào game)
+    std::vector<Music> musicList;           // Danh sách các bài hát trong game (3 bài)
+    std::vector<std::string> songNames;     // Tên hiển thị của các bài hát
+    int currentSongIndex;                   // Index của bài hát được chọn cho in-game
+    int hoveredSongIndex;                   // Index của bài hát đang hover
+    bool isPreviewingMusic;                 // Đang preview nhạc trong Settings menu
+
     //  GAME LOOP
     void init();
     void resetGame();        // Reset game state
@@ -64,6 +73,7 @@ private:
     void handlePass();                          // Xử lý Pass
     void handleNewGame();                       // Xử lý New Game
     void handleAITurn();                        // Xử lý lượt chơi của AI
+    void handleSettingsInput();                 // Xử lý input trong Settings menu
 
     //GAME Logic
     void switchPlayer();       // Chuyển lượt chơi
