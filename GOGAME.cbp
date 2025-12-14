@@ -43,6 +43,10 @@
 			<Add directory="raylib/raylib_lib/include" />
 		</Compiler>
 		<Linker>
+			<Add option="-lraylib" />
+			<Add option="-lopengl32" />
+			<Add option="-lgdi32" />
+			<Add option="-lwinmm" />
 			<Add library="raylib/raylib_lib/lib/libraylib.a" />
 			<Add library="raylib/raylib_lib/lib/libraylibdll.a" />
 			<Add directory="raylib/raylib_lib/lib" />

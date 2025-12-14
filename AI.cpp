@@ -6,6 +6,7 @@
 #include <random>
 #include <utility>
 #include <algorithm>
+#include <chrono>
 using namespace std;
 AI::AI() {
 }
@@ -79,7 +80,7 @@ std::pair<int,int> AI::FindBestMove(const Board&  board,char AI_player,Difficult
         {
             std::vector<std::pair<int,int>> ValidMove=board.AllValidMove();
             if(ValidMove.empty()) {
-                return {0,0};
+                return {-1,-1};
             }
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -90,11 +91,17 @@ std::pair<int,int> AI::FindBestMove(const Board&  board,char AI_player,Difficult
         case Difficulty::Medium: {
             vector<pair<int,int>> Move=board.quickMove();
             if(Move.empty()) {
-                return {0,0};
+                return {-1,-1};
             }
             int depth=2;
+            if(Move.size()>20) {
+                depth=2;
+            }
+            else if(Move.size()<5) {
+                depth++;
+            }
             int Maxpoint=-100000;
-            pair<int,int> BestMove={0,0};
+            pair<int,int> BestMove={-1,-1};
             Board tempboard = board;
             for (pair<int,int> x:Move) {
                 if(tempboard.PlaceStone(x.first,x.second)) {
@@ -109,29 +116,64 @@ std::pair<int,int> AI::FindBestMove(const Board&  board,char AI_player,Difficult
             return BestMove;
         }
         case Difficulty::Hard: {
-            vector<pair<int,int>> Move=board.quickMove();
-            if(Move.empty()) {
-                return {0,0};
-            }
-            int depth=3;
-            if(Move.size()>20) {
-                depth--;
-            }
-            int Maxpoint=-100000;
-            Board tempboard=board;
-            pair<int,int> BestMove={0,0};
-            for(pair<int,int> x: Move) {
-                if(tempboard.PlaceStone(x.first,x.second)) {
-                    int PointOfCurrentMove = alpha_beta(tempboard,depth,-100000,+100000,false,AI_player);
-                    tempboard.Undo_Board();
-                    if(PointOfCurrentMove>Maxpoint) {
-                        BestMove=x;
-                        Maxpoint=PointOfCurrentMove;
+            std::vector<std::pair<int, int>> Move = board.quickMove();
+            if (Move.empty()) return {-1, -1};
+
+            // Nếu chỉ có 1 nước đi duy nhất, đánh luôn khỏi tính
+            if (Move.size() == 1) return Move[0];
+
+            long long timeLimitMs = 900;
+            if (level == Difficulty::Medium) timeLimitMs = 500;
+            if (level == Difficulty::Easy) timeLimitMs = 10;
+
+            // Bắt đầu bấm giờ
+            auto startTime = std::chrono::high_resolution_clock::now();
+
+            std::pair<int, int> bestMoveSoFar = Move[0]; // Lưu nước đi tốt nhất tìm được
+            int maxDepth = (level == Difficulty::Hard) ? 5 : 2;
+            for (int currentDepth = 1; currentDepth <= maxDepth; currentDepth++) {
+
+                int alpha = -2000000000;
+                int beta = 2000000000;
+                int maxVal = -2000000000;
+                std::pair<int, int> currentDepthBestMove = {-1, -1};
+                Board tempBoard = board;
+
+                for (auto p : Move) {
+                    if (tempBoard.PlaceStone(p.first, p.second)) {
+                        int val = alpha_beta(tempBoard, currentDepth - 1, alpha, beta, false, AI_player);
+                        tempBoard.Undo_Board();
+
+                        if (val > maxVal) {
+                            maxVal = val;
+                            currentDepthBestMove = p;
+                        }
+                        if (maxVal > alpha) {
+                            alpha = maxVal;
+                        }
+                    }
+                    auto now = std::chrono::high_resolution_clock::now();
+                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count();
+                    if (duration > timeLimitMs) {
+                        std::cout << "Time out at Depth " << currentDepth << "!" << std::endl;
+                        return bestMoveSoFar;
+                    }
+                }
+                if (currentDepthBestMove.first != -1) {
+                    bestMoveSoFar = currentDepthBestMove;
+                    std::cout << "Finished Depth " << currentDepth << " => Best: " << bestMoveSoFar.first << "," << bestMoveSoFar.second << std::endl;
+                }
+
+                //Đưa nước đi tốt nhất vừa tìm được lên đầu danh sách Move
+                for (int i=0; i<Move.size(); i++) {
+                    if (Move[i] == bestMoveSoFar) {
+                        std::swap(Move[0], Move[i]);
+                        break;
                     }
                 }
             }
-            return BestMove;
-            break;
+
+            return bestMoveSoFar;
         }
         default: break;
     }

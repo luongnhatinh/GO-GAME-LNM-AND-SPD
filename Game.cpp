@@ -198,6 +198,11 @@ void Game::handleInput() {
                     ui.resetToMainMenu();  // Reset trước khi vào game
                     currentState = PLAYING;
                     resetGame();
+                    // Bật AI mode với độ khó Medium
+                    isAIMode = true;
+                    aiDifficulty = Difficulty::Medium;
+                    aiPlayer = 'W';  // AI chơi quân trắng, player chơi quân đen
+                    printf("AI Mode: ON | Difficulty: MEDIUM | AI plays: WHITE\n");
                     return;
                 }
 
@@ -207,6 +212,11 @@ void Game::handleInput() {
                     ui.resetToMainMenu();  // Reset trước khi vào game
                     currentState = PLAYING;
                     resetGame();
+                    // Bật AI mode với độ khó Hard
+                    isAIMode = true;
+                    aiDifficulty = Difficulty::Hard;
+                    aiPlayer = 'W';  // AI chơi quân trắng, player chơi quân đen
+                    printf("AI Mode: ON | Difficulty: HARD | AI plays: WHITE\n");
                     return;
                 }
 

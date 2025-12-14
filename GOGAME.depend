@@ -135,7 +135,7 @@
 	<ctime>
 	<sys/stat.h>
 
-1765447877 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.cpp
+1765699930 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.cpp
 	"AI.h"
 	"board.h"
 	<cstdlib>
@@ -143,11 +143,12 @@
 	<random>
 	<utility>
 	<algorithm>
+	<chrono>
 
 1765438942 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.h
 	"board.h"
 
-1765446317 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\board.h
+1765698849 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\board.h
 	<iostream>
 	<vector>
 	<utility>
@@ -156,7 +157,7 @@
 	<fstream>
 	<string>
 
-1765446317 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\board.cpp
+1765699599 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\board.cpp
 	<iostream>
 	"board.h"
 	<iostream>
@@ -167,15 +168,17 @@
 	<queue>
 	<string>
 	<fstream>
+	<algorithm>
+	<cmath>
 
-1763988468 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\game.cpp
+1765690870 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\game.cpp
 	"Game.h"
 	"board.h"
 	"UI.h"
 	<raylib.h>
 	<iostream>
 
-1763990862 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\game.h
+1765690086 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\game.h
 	<iostream>
 	<vector>
 	<utility>
@@ -185,18 +188,19 @@
 	<raylib.h>
 	"board.h"
 	"UI.h"
+	"AI.h"
 
 1763478987 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\raylib\raylib_lib\include\raylib.h
 	<stdarg.h>
 	<stdbool.h>
 
-1763990861 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ui.h
+1765689160 d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ui.h
 	<raylib.h>
 	<vector>
 	<string>
 	"board.h"
 
-1765632023 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\main.cpp
+1765698560 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\main.cpp
 	<iostream>
 	"board.h"
 	"Game.h"
@@ -206,9 +210,10 @@
 	<stack>
 	<cstring>
 	<queue>
+	<random>
 	<chrono>
 
-1764325312 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ui.cpp
+1765689160 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ui.cpp
 	"UI.h"
 	<raylib.h>
 	<string>

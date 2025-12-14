@@ -55,6 +55,7 @@ private:
     static const int step_j[4];
     int BlackStoneCapture;
     int WhiteStoneCapture;
+    int rateMoveSmart(int r, int c) const;
     char player;
     std::stack<Board> undo;
     std::stack<Board>redo;

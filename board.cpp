@@ -9,6 +9,8 @@
 #include <queue>
 #include <string>
 #include <fstream>
+#include <algorithm>
+#include <cmath>
 using namespace std;
 const int Board::step_i[4]={-1,0,1,0};
 const int Board::step_j[4]={0,1,0,-1};
@@ -241,50 +243,6 @@ bool Board::LoadGame(string filename) {
     fin.close();
     return true;
 }
-vector<pair<int,int>>Board::quickMove() const{
-    vector<pair<int,int>> Move;
-    int cnt=0;
-    for(int i=1;i<=19;i++) {
-        for(int j=1;j<=19;j++) {
-            if(board[i][j]!='O') cnt++;
-        }
-    }
-    // voi cac truong hop co qua nhieu nuoc di, uu tien di tai cac nut sao
-    int star[3]={4,10,16};
-    if(cnt<=5) {
-        for(int r = 0 ;r<3;r++) {
-            for(int l = 0; l<3;l++) {
-                if(board[star[r]][star[l]]=='O')
-                    Move.push_back({star[r],star[l]});
-            }
-        }
-        return Move;
-    }
-    for (int i = 1; i <= 19; i++) {
-        for (int j = 1; j <= 19; j++) {
-            if (board[i][j] == 'O') {
-                bool hasNeighbor = false;
-                for (int di = -1; di <= 1; di++) {
-                    for (int dj = -1; dj <= 1; dj++) {
-                        int ni = i + di;
-                        int nj = j + dj;
-                        if (ni >= 1 && ni <= 19 && nj >= 1 && nj <= 19) {
-                            if (board[ni][nj] != 'O') {
-                                hasNeighbor = true;
-                                break;
-                            }
-                        }
-                    }
-                    if(hasNeighbor) break;
-                }
-                if (hasNeighbor) {
-                    Move.push_back({i, j});
-                }
-            }
-        }
-    }
-    return Move;
-}
 // Bảng điểm ưu tiên vị trí (Càng gần trung tâm/sao càng cao điểm)
 int GetPositionScore(int row, int col) {
     // Càng gần trung tâm càng nhiều điểm (để khuyến khích vây đất)
@@ -299,7 +257,6 @@ int Board::quickeval(char AI_player) const {
     for (int i = 1; i <= 19; i++) {
         for (int j = 1; j <= 19; j++) {
             if (board[i][j] == 'B') {
-                // Cộng thêm điểm vị trí chiến lược
                 blackScore += (10 + GetPositionScore(i, j));
             }
             else if (board[i][j] == 'W') {
@@ -309,4 +266,91 @@ int Board::quickeval(char AI_player) const {
     }
     if (AI_player == 'B') return blackScore - whiteScore;
     else return whiteScore - blackScore;
+}
+int Board::rateMoveSmart(int r, int c) const {
+    int score = 0;
+    int distScore = 40 - (std::abs(r - 10) + std::abs(c - 10));
+    score += distScore;
+    bool isContact = false;
+    int dx[] = {-1, 1, 0, 0};
+    int dy[] = {0, 0, -1, 1};
+
+    for (int k = 0; k < 4; k++) {
+        int ni = r + dx[k];
+        int nj = c + dy[k];
+
+        if (ni >= 1 && ni <= 19 && nj >= 1 && nj <= 19) {
+            if (board[ni][nj] == player) {
+                score+=20;
+                break;
+            }
+            else if (board[ni][nj]=='O') {
+                isContact=true;
+                break;
+            }
+        }
+    }
+
+    if (isContact) {
+        score += 15;
+    }
+
+    return score;
+}
+
+std::vector<std::pair<int, int>> Board::quickMove() const {
+    std::vector<std::pair<int, int>> Move;
+    Move.reserve(100);
+    int cnt = 0;
+    for (int i = 1; i <= 19; i++) {
+        for (int j = 1; j <= 19; j++) {
+            if (board[i][j] != 'O') cnt++;
+        }
+    }
+    if (cnt <= 9) {
+        int star[3] = {4, 10, 16};
+        for (int r = 0; r < 3; r++) {
+            for (int l = 0; l < 3; l++) {
+                if (board[star[r]][star[l]] == 'O') {
+                    Move.push_back({star[r], star[l]});
+                }
+            }
+        }
+        if (!Move.empty()) return Move;
+    }
+    for (int i = 1; i <= 19; i++) {
+        for (int j = 1; j <= 19; j++) {
+            if (board[i][j] == 'O') {
+                bool hasNeighbor = false;
+                for (int di = -1; di <= 1; di++) {
+                    for (int dj = -1; dj <= 1; dj++) {
+                        if (di == 0 && dj == 0) continue;
+                        int ni = i + di;
+                        int nj = j + dj;
+                        if (ni >= 1 && ni <= 19 && nj >= 1 && nj <= 19) {
+                            if (board[ni][nj] != 'O') {
+                                hasNeighbor = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (hasNeighbor) break;
+                }
+                if (hasNeighbor) {
+                    Move.push_back({i, j});
+                }
+            }
+        }
+    }
+    if (Move.empty()) return AllValidMove();
+    if (Move.size() > 1) {
+        std::sort(Move.begin(), Move.end(), [this](const std::pair<int, int>& a, const std::pair<int, int>& b) {
+            return rateMoveSmart(a.first, a.second) > rateMoveSmart(b.first, b.second);
+        });
+    }
+    if (Move.size() > 24) {
+        Move.resize(24);
+    }
+
+    return Move;
 }

@@ -28,12 +28,13 @@ private:
     Board board;                    // Logic bàn cờ
     UI ui;                          // Giao diện UI
     AI ai;                          // AI opponent
+    GameState currentState;
+    char currentPlayer;
+    bool isGameOver;
+    char winner;
 
     int consecutivePasses;       // Đếm số lần pass liên tiếp
     int hoverRow, hoverCol;       // Ô đang hover chuột
-
-    int consecutivePasses;          // Đếm số lần pass liên tiếp
-    int hoverRow, hoverCol;         // Ô đang hover chuột
 
     // ========== AI MODE ==========
     bool isAIMode;                  // Chế độ chơi với AI
