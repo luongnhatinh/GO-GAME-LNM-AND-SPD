@@ -135,7 +135,7 @@
 	<ctime>
 	<sys/stat.h>
 
-1765699930 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.cpp
+1765700682 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\ai.cpp
 	"AI.h"
 	"board.h"
 	<cstdlib>
@@ -157,7 +157,7 @@
 	<fstream>
 	<string>
 
-1765699599 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\board.cpp
+1765700227 source:d:\tom\apcs\cs160-th\go-game-lnm-and-spd\board.cpp
 	<iostream>
 	"board.h"
 	<iostream>

@@ -269,31 +269,30 @@ int Board::quickeval(char AI_player) const {
 }
 int Board::rateMoveSmart(int r, int c) const {
     int score = 0;
-    int distScore = 40 - (std::abs(r - 10) + std::abs(c - 10));
+    int distScore = 50 - (std::abs(r - 10) + std::abs(c - 10));
     score += distScore;
     bool isContact = false;
+    bool check = false;
     int dx[] = {-1, 1, 0, 0};
     int dy[] = {0, 0, -1, 1};
 
     for (int k = 0; k < 4; k++) {
         int ni = r + dx[k];
         int nj = c + dy[k];
-
         if (ni >= 1 && ni <= 19 && nj >= 1 && nj <= 19) {
             if (board[ni][nj] == player) {
-                score+=20;
-                break;
+                check=true;
             }
-            else if (board[ni][nj]=='O') {
+            else if (board[ni][nj]!='O') {
                 isContact=true;
-                break;
             }
         }
     }
 
-    if (isContact) {
-        score += 15;
+    if (check) {
+        score += 30;
     }
+    else if(isContact) score+=15;
 
     return score;
 }
