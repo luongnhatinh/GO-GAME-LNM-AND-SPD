@@ -10,6 +10,7 @@
 #include <raylib.h>
 #include "board.h"
 #include "UI.h"
+#include "AI.h"
 
 //GAME STATE ENUM
 enum GameState {
@@ -23,18 +24,24 @@ public:
     void run();
 
 private:
-    Board board;
-    UI ui;
-    GameState currentState;         // Trạng thái hiện tại
-    char currentPlayer;         // 'B' (Black) hoặc 'W' (White)
-    bool isGameOver;         // Game đã kết thúc chưa
-    char winner;          // 'B', 'W', hoặc 'D'
+    // ========== COMPONENTS ==========
+    Board board;                    // Logic bàn cờ
+    UI ui;                          // Giao diện UI
+    AI ai;                          // AI opponent
 
     int consecutivePasses;       // Đếm số lần pass liên tiếp
     int hoverRow, hoverCol;       // Ô đang hover chuột
 
-    //UNDO/REDO MANAGEMENT
-    std::stack<Board> history;    // Lịch sử các nước đi (cho undo)
+    int consecutivePasses;          // Đếm số lần pass liên tiếp
+    int hoverRow, hoverCol;         // Ô đang hover chuột
+
+    // ========== AI MODE ==========
+    bool isAIMode;                  // Chế độ chơi với AI
+    Difficulty aiDifficulty;        // Độ khó AI (Easy/Medium/Hard)
+    char aiPlayer;                  // AI chơi quân gì ('B' hoặc 'W')
+
+    // ========== UNDO/REDO MANAGEMENT ==========
+    std::stack<Board> history;      // Lịch sử các nước đi (cho undo)
     std::stack<Board> redoStack;    // Stack cho redo
 
     //  SCORE TRACKING
@@ -49,12 +56,13 @@ private:
     void render();            // Vẽ UI
     void cleanup();
 
-    //INPUT HANDLERS
-    void handleStonePlace(int row, int col);
-    void handleUndo();
-    void handleRedo();
-    void handlePass();
-    void handleNewGame();
+    // ========== INPUT HANDLERS ==========
+    void handleStonePlace(int row, int col);   // Xử lý đặt quân
+    void handleUndo();                          // Xử lý Undo
+    void handleRedo();                          // Xử lý Redo
+    void handlePass();                          // Xử lý Pass
+    void handleNewGame();                       // Xử lý New Game
+    void handleAITurn();                        // Xử lý lượt chơi của AI
 
     //GAME Logic
     void switchPlayer();       // Chuyển lượt chơi
