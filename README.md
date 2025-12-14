@@ -1,7 +1,6 @@
 # Go Game (Weiqi) - C++ & Raylib
 
 ![Go Game Banner](media/menu.png)
-*(Optional: Replace the link above with a screenshot of your game board)*
 
 ## 📜 Overview
 
