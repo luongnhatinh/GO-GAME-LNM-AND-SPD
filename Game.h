@@ -10,6 +10,7 @@
 #include <raylib.h>
 #include "board.h"
 #include "UI.h"
+#include "AI.h"
 
 // ========== GAME STATE ENUM ==========
 enum GameState {
@@ -27,6 +28,7 @@ private:
     // ========== COMPONENTS ==========
     Board board;                    // Logic bàn cờ
     UI ui;                          // Giao diện UI
+    AI ai;                          // AI opponent
 
     // ========== GAME STATE ==========
     GameState currentState;         // Trạng thái hiện tại (MENU/PLAYING)
@@ -36,6 +38,11 @@ private:
 
     int consecutivePasses;          // Đếm số lần pass liên tiếp
     int hoverRow, hoverCol;         // Ô đang hover chuột
+
+    // ========== AI MODE ==========
+    bool isAIMode;                  // Chế độ chơi với AI
+    Difficulty aiDifficulty;        // Độ khó AI (Easy/Medium/Hard)
+    char aiPlayer;                  // AI chơi quân gì ('B' hoặc 'W')
 
     // ========== UNDO/REDO MANAGEMENT ==========
     std::stack<Board> history;      // Lịch sử các nước đi (cho undo)
@@ -59,6 +66,7 @@ private:
     void handleRedo();                          // Xử lý Redo
     void handlePass();                          // Xử lý Pass
     void handleNewGame();                       // Xử lý New Game
+    void handleAITurn();                        // Xử lý lượt chơi của AI
 
     // ========== GAME LOGIC ==========
     void switchPlayer();                        // Chuyển lượt chơi

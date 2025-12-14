@@ -43,6 +43,11 @@ void Game::resetGame() {
     blackFinalScore = 0;
     whiteFinalScore = 0;
 
+    // Reset AI mode (mặc định là PVP)
+    isAIMode = false;
+    aiDifficulty = Difficulty::Easy;
+    aiPlayer = 'W';  // AI mặc định chơi quân trắng
+
     // Clear history
     while (!history.empty()) history.pop();
     while (!redoStack.empty()) redoStack.pop();
@@ -54,6 +59,9 @@ void Game::resetGame() {
     std::pair<int, int> area = board.CountArea();
     std::cout << "Black Area: " << area.first << std::endl;
     std::cout << "White Area: " << area.second << std::endl;
+
+    // Reset unsaved changes flag (game mới chưa có gì để lưu)
+    ui.hasUnsavedChanges = false;
 }
 
 // ========== XỬ LÝ INPUT ==========
@@ -95,6 +103,7 @@ void Game::handleInput() {
             std::cout << "Calling board.SaveGame()..." << std::endl;
             if (board.SaveGame(savePath)) {
                 std::cout << "SUCCESS! Game saved to: " << savePath << std::endl;
+                ui.hasUnsavedChanges = false;  // Đánh dấu đã lưu game
             } else {
                 std::cout << "ERROR! Failed to save game to: " << savePath << std::endl;
             }
@@ -122,6 +131,8 @@ void Game::handleInput() {
                 // Clear history after loading
                 while (!history.empty()) history.pop();
                 while (!redoStack.empty()) redoStack.pop();
+                // Game vừa load không có thay đổi chưa lưu
+                ui.hasUnsavedChanges = false;
             } else {
                 std::cout << "ERROR! Failed to load game from: " << loadPath << std::endl;
             }
@@ -138,6 +149,28 @@ void Game::handleInput() {
         return;  // Don't process other input while load popup is open
     }
 
+    // ===== XỬ LÝ MENU CONFIRM DIALOG =====
+    if (ui.showMenuConfirmDialog) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mousePos = GetMousePosition();
+
+            // Click vào "MAIN MENU" → quay về main menu
+            if (ui.isConfirmMainMenuClicked(mousePos)) {
+                ui.showMenuConfirmDialog = false;
+                ui.resetToMainMenu();
+                currentState = MENU;
+                return;
+            }
+
+            // Click vào "CLOSE" → đóng dialog
+            if (ui.isCloseDialogClicked(mousePos)) {
+                ui.showMenuConfirmDialog = false;
+                return;
+            }
+        }
+        return;  // Don't process other input while dialog is open
+    }
+
     // ===== XỬ LÝ INPUT THEO STATE =====
     if (currentState == MENU) {
         // Ở màn hình menu
@@ -148,7 +181,56 @@ void Game::handleInput() {
                 resetGame();
                 return;
             }
+            // Xử lý click vào button AI để mở difficulty menu
             ui.isPlayerVsAIClicked(mousePos);
+
+            // CHỈ xử lý click difficulty buttons KHI đang ở trong difficulty menu
+            if (ui.showDifficultyMenu) {
+                // Xử lý click vào các nút difficulty
+                if (ui.isEasyButtonClicked(mousePos)) {
+                    printf("EASY difficulty selected!\n");
+                    ui.resetToMainMenu();  // Reset trước khi vào game
+                    currentState = PLAYING;
+                    resetGame();
+                    // Bật AI mode với độ khó Easy
+                    isAIMode = true;
+                    aiDifficulty = Difficulty::Easy;
+                    aiPlayer = 'W';  // AI chơi quân trắng, player chơi quân đen
+                    printf("AI Mode: ON | Difficulty: EASY | AI plays: WHITE\n");
+                    return;
+                }
+
+                if (ui.isMediumButtonClicked(mousePos)) {
+                    printf("MEDIUM difficulty selected!\n");
+                    // TODO: Khởi tạo game với AI độ khó Medium
+                    ui.resetToMainMenu();  // Reset trước khi vào game
+                    currentState = PLAYING;
+                    resetGame();
+                    return;
+                }
+
+                if (ui.isHardButtonClicked(mousePos)) {
+                    printf("HARD difficulty selected!\n");
+                    // TODO: Khởi tạo game với AI độ khó Hard
+                    ui.resetToMainMenu();  // Reset trước khi vào game
+                    currentState = PLAYING;
+                    resetGame();
+                    return;
+                }
+
+                // Xử lý click nút Back (quay về menu chính từ difficulty menu)
+                if (ui.isBackButtonClicked(mousePos)) {
+                    ui.resetToMainMenu();
+                    return;
+                }
+            }
+
+            // Settings button chỉ ở main menu, không ở difficulty menu
+            if (!ui.showDifficultyMenu && ui.isPlayerVsSettingClicked(mousePos)) {
+                // TODO: Thêm chức năng settings ở đây
+                printf("Settings button clicked! (Feature not implemented yet)\n");
+            }
+
             // Click vào bất kỳ đâu để đóng notification (sẽ xử lý trong UI)
         }
         return;
@@ -162,7 +244,8 @@ void Game::handleInput() {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         // Kiểm tra click nút MENU trong game over screen trước
         if (isGameOver && ui.isNewGameButtonGameOverClicked(mousePos)) {
-            // Quay về menu thay vì new game
+            // Quay về menu chính (reset về main menu, không phải difficulty menu)
+            ui.resetToMainMenu();
             currentState = MENU;
             return;
         }
@@ -190,6 +273,10 @@ void Game::handleInput() {
         }
         if (ui.isLoadGameButtonClicked(mousePos)) {
             // Open load popup (handled in UI)
+            return;
+        }
+        if (ui.isMenuButtonClicked(mousePos)) {
+            // Open menu confirm dialog (handled in UI)
             return;
         }
 
@@ -227,6 +314,14 @@ void Game::handleStonePlace(int row, int col) {
 
         // Clear redo stack (không thể redo sau khi đặt quân mới)
         while (!redoStack.empty()) redoStack.pop();
+
+        // Đánh dấu có thay đổi chưa lưu
+        ui.hasUnsavedChanges = true;
+
+        // Nếu đang ở AI mode và chưa game over → cho AI đánh
+        if (isAIMode && !isGameOver) {
+            handleAITurn();
+        }
     } else {
         // Đặt quân thất bại → Xóa snapshot vừa lưu
         history.pop();
@@ -235,46 +330,62 @@ void Game::handleStonePlace(int row, int col) {
 
 // ========== XỬ LÝ UNDO ==========
 void Game::handleUndo() {
-    // Kiểm tra có history không
-    if (history.empty()) {
-        std::cout << "No moves to undo!" << std::endl;
-        return;
+    // Trong AI mode, undo 2 lần (AI move + Player move) để không rơi vào lượt AI
+    int undoCount = isAIMode ? 2 : 1;
+
+    for (int i = 0; i < undoCount; i++) {
+        // Kiểm tra có history không
+        if (history.empty()) {
+            std::cout << "No moves to undo!" << std::endl;
+            return;
+        }
+
+        // Lưu trạng thái hiện tại vào redo stack
+        redoStack.push(board);
+
+        // Khôi phục trạng thái trước đó
+        board = history.top();
+        history.pop();
+
+        // Đồng bộ currentPlayer với Board (Board đã có player cũ)
+        currentPlayer = board.getCurrentPlayer();
+
+        // Reset game over nếu đang ở trạng thái kết thúc
+        if (isGameOver) {
+            isGameOver = false;
+            consecutivePasses = 0;
+        }
     }
 
-    // Lưu trạng thái hiện tại vào redo stack
-    redoStack.push(board);
-
-    // Khôi phục trạng thái trước đó
-    board = history.top();
-    history.pop();
-
-    // Đồng bộ currentPlayer với Board (Board đã có player cũ)
-    currentPlayer = board.getCurrentPlayer();
-
-    // Reset game over nếu đang ở trạng thái kết thúc
-    if (isGameOver) {
-        isGameOver = false;
-        consecutivePasses = 0;
-    }
+    // Đánh dấu có thay đổi chưa lưu
+    ui.hasUnsavedChanges = true;
 }
 
 // ========== XỬ LÝ REDO ==========
 void Game::handleRedo() {
-    // Kiểm tra có redo stack không
-    if (redoStack.empty()) {
-        std::cout << "No moves to redo!" << std::endl;
-        return;
+    // Trong AI mode, redo 2 lần (Player move + AI move) để không rơi vào lượt AI
+    int redoCount = isAIMode ? 2 : 1;
+
+    for (int i = 0; i < redoCount; i++) {
+        // Kiểm tra có redo stack không
+        if (redoStack.empty()) {
+            std::cout << "No moves to redo!" << std::endl;
+            return;
+        }
+
+        // Lưu trạng thái hiện tại vào history
+        history.push(board);
+
+        // Khôi phục trạng thái từ redo stack
+        board = redoStack.top();
+        redoStack.pop();
+
+        // Đồng bộ currentPlayer với Board
+        currentPlayer = board.getCurrentPlayer();
     }
 
-    // Lưu trạng thái hiện tại vào history
-    history.push(board);
-
-    // Khôi phục trạng thái từ redo stack
-    board = redoStack.top();
-    redoStack.pop();
-
-    // Đồng bộ currentPlayer với Board
-    currentPlayer = board.getCurrentPlayer();
+    // Đánh dấu có thay đổi chưa lưu
+    ui.hasUnsavedChanges = true;
 }
 
 // ========== XỬ LÝ PASS ==========
@@ -292,11 +403,59 @@ void Game::handlePass() {
     checkGameOver();
 
     std::cout << "Player passed. Consecutive passes: " << consecutivePasses << std::endl;
+
+    // Đánh dấu có thay đổi chưa lưu
+    ui.hasUnsavedChanges = true;
 }
 
 // ========== XỬ LÝ NEW GAME ==========
 void Game::handleNewGame() {
     resetGame();  // Reset game state (KHÔNG tạo window mới)
+}
+
+// ========== XỬ LÝ LƯỢT CHƠI CỦA AI ==========
+void Game::handleAITurn() {
+    // Chỉ chạy khi đang ở AI mode và đến lượt AI
+    if (!isAIMode || isGameOver) {
+        return;
+    }
+
+    // Kiểm tra có phải lượt của AI không
+    if (currentPlayer != aiPlayer) {
+        return;
+    }
+
+    std::cout << "AI is thinking..." << std::endl;
+
+    // Gọi AI để tìm nước đi tốt nhất
+    std::pair<int, int> aiMove = ai.FindBestMove(board, aiPlayer, aiDifficulty);
+    int row = aiMove.first;
+    int col = aiMove.second;
+
+    std::cout << "AI plays at: (" << row << ", " << col << ")" << std::endl;
+
+    // Lưu vào history trước khi đặt quân
+    history.push(board);
+
+    // Thực hiện nước đi của AI
+    bool success = board.PlaceStone(row, col);
+
+    if (success) {
+        // Đặt quân thành công
+        consecutivePasses = 0;
+        currentPlayer = board.getCurrentPlayer();  // Đồng bộ với Board (đã switch về player)
+        checkGameOver();
+
+        // Clear redo stack
+        while (!redoStack.empty()) redoStack.pop();
+
+        // Đánh dấu có thay đổi chưa lưu
+        ui.hasUnsavedChanges = true;
+    } else {
+        // Đặt quân thất bại (không nên xảy ra nếu AI hoạt động đúng)
+        std::cout << "ERROR: AI tried to place invalid move!" << std::endl;
+        history.pop();
+    }
 }
 
 // ========== CHUYỂN LƯỢT CHƠI ==========
@@ -402,6 +561,11 @@ void Game::render() {
         }
         if (ui.showLoadPopup) {
             ui.drawLoadGamePopup();
+        }
+
+        // Vẽ menu confirm dialog nếu đang mở
+        if (ui.showMenuConfirmDialog) {
+            ui.drawMenuConfirmDialog();
         }
     }
 
