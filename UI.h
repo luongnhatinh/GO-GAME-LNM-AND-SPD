@@ -17,13 +17,13 @@ public:
     void cleanup();
 
     // Vẽ các thành phần chính
-    void drawBoard();                                      // Vẽ grid 19x19
-    void drawStones(const Board& board);                   // Vẽ quân cờ từ Board
-    void drawHoverEffect(int row, int col);                // Highlight ô đang hover
-    void drawPlayerTurn(char currentPlayer);               // Hiển thị "Black's turn"
+    void drawBoard();// Vẽ grid 19x19
+    void drawStones(const Board& board);  // Vẽ quân cờ từ Board
+    void drawHoverEffect(int row, int col);   // Highlight ô đang hover
+    void drawPlayerTurn(char currentPlayer);  // Hiển thị "Black's turn"
     void drawScore(int blackArea, int whiteArea,
-                   int blackCapture, int whiteCapture);    // Hiển thị điểm
-    void drawButtons();                                    // Vẽ các nút Undo/Redo/Pass
+                   int blackCapture, int whiteCapture);// Hiển thị điểm
+    void drawButtons();// Vẽ các nút Undo/Redo/Pass
     void drawGameOver(char winner, int blackScore, int whiteScore); // Màn hình kết thúc
     void drawMenu();                                       // Vẽ màn hình menu
     void drawDifficultyMenu();                             // Vẽ màn hình chọn độ khó
@@ -55,11 +55,9 @@ public:
     bool isConfirmMainMenuClicked(Vector2 mousePos);        // Nút "MAIN MENU" trong dialog
     bool isCloseDialogClicked(Vector2 mousePos);            // Nút "CLOSE" trong dialog
 
-    // Bắt đầu/kết thúc vẽ frame
     void beginDrawing();
     void endDrawing();
 
-    // Kiểm tra window có nên đóng không
     bool shouldClose();
 
     // Reset về menu chính (không phải difficulty menu)
@@ -72,11 +70,11 @@ public:
     void handleTextInput(int key);                          // Xử lý text input cho save name
     int getSaveGameNameLength() const { return saveGameNameLength; }  // Debug helper
     const char* getSaveGameNameBuffer() const { return saveGameNameBuffer; }  // Debug helper
-    bool showSavePopup;                                     // Hiển thị popup save
-    bool showLoadPopup;                                     // Hiển thị popup load
-    int selectedSaveIndex;                                  // Index của save được chọn trong list
-    bool saveRequested;                                     // Flag để báo hiệu save được request
-    bool loadRequested;                                     // Flag để báo hiệu load được request
+    bool showSavePopup;// Hiển thị popup save
+    bool showLoadPopup;// Hiển thị popup load
+    int selectedSaveIndex;// Index của save được chọn trong list
+    bool saveRequested;// Flag để báo hiệu save được request
+    bool loadRequested;// Flag để báo hiệu load được request
 
     // ========== MENU DIALOG STATE ==========
     bool showMenuConfirmDialog;                             // Hiển thị dialog xác nhận quay về menu
@@ -89,7 +87,7 @@ public:
     int notificationFrameCounter;                           // Đếm frame từ khi mở notification
 
 private:
-    // ========== UI CONSTANTS ==========
+    //  UI CONSTANTS
     static const int SCREEN_WIDTH = 1400;
     static const int SCREEN_HEIGHT = 900;
     static const int CELL_SIZE = 40;
@@ -98,7 +96,7 @@ private:
     static const int STONE_RADIUS = 18;
     static const int BOARD_SIZE = 19;
 
-    // ========== BUTTON RECTANGLES ==========
+    //BUTTON RECTANGLES
     Rectangle undoButton;
     Rectangle redoButton;
     Rectangle passButton;
@@ -109,7 +107,7 @@ private:
     Rectangle confirmMainMenuButton;  // Nút "MAIN MENU" trong dialog
     Rectangle closeDialogButton;      // Nút "CLOSE" trong dialog
 
-    // ========== MENU ==========
+    //MENU
     Texture2D menuTexture;
     Texture2D menuBlanksTexture;        // Background cho difficulty menu
     Texture2D buttonPlayerTexture;
@@ -127,16 +125,16 @@ private:
     Rectangle hardButton;
     Rectangle backButton;               // Nút Back trong difficulty menu
 
-    // ========== SAVE/LOAD STATE ==========
-    int loadPopupFrameCounter;      // Đếm frame từ khi mở load popup
-    char saveGameNameBuffer[100];   // Buffer cho text input
-    int saveGameNameLength;         // Độ dài tên hiện tại
+    //SAVE/LOAD STATE
+    int loadPopupFrameCounter; // Đếm frame từ khi mở load popup
+    char saveGameNameBuffer[100];// Buffer cho text input
+    int saveGameNameLength;  // Độ dài tên hiện tại
     std::vector<std::string> savedGamesList;  // Danh sách file đã lưu
     std::vector<std::string> savedGamesTime;  // Danh sách thời gian của các file
-    int scrollOffset;               // Offset cho scroll trong load popup
+    int scrollOffset;  // Offset cho scroll trong load popup
     std::string saveGameDirectory;  // Đường dẫn tới save_game folder (tự động phát hiện)
 
-    // ========== COLORS ==========
+    // COLORS
     Color boardColor;
     Color lineColor;
     Color starPointColor;
@@ -144,7 +142,7 @@ private:
     Color whiteStoneColor;
     Color hoverColor;
 
-    // ========== HELPER FUNCTIONS ==========
+    //HELPER FUNCTIONS
     void drawGridLines();
     void drawStarPoints();       // Vẽ các điểm sao (hoshi) trên bàn cờ
     void drawCoordinates();      // Vẽ tọa độ A-T, 1-19

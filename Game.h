@@ -12,16 +12,15 @@
 #include "UI.h"
 #include "AI.h"
 
-// ========== GAME STATE ENUM ==========
+//GAME STATE ENUM
 enum GameState {
-    MENU,       // Màn hình menu
-    PLAYING,    // Đang chơi
-    GAME_OVER   // Kết thúc (không dùng vì isGameOver đã handle)
+    MENU,
+    PLAYING,
+    GAME_OVER
 };
 
 class Game {
 public:
-    // Hàm duy nhất được gọi từ main()
     void run();
 
 private:
@@ -30,11 +29,8 @@ private:
     UI ui;                          // Giao diện UI
     AI ai;                          // AI opponent
 
-    // ========== GAME STATE ==========
-    GameState currentState;         // Trạng thái hiện tại (MENU/PLAYING)
-    char currentPlayer;             // 'B' (Black) hoặc 'W' (White)
-    bool isGameOver;                // Game đã kết thúc chưa?
-    char winner;                    // 'B', 'W', hoặc 'D' (Draw)
+    int consecutivePasses;       // Đếm số lần pass liên tiếp
+    int hoverRow, hoverCol;       // Ô đang hover chuột
 
     int consecutivePasses;          // Đếm số lần pass liên tiếp
     int hoverRow, hoverCol;         // Ô đang hover chuột
@@ -48,17 +44,17 @@ private:
     std::stack<Board> history;      // Lịch sử các nước đi (cho undo)
     std::stack<Board> redoStack;    // Stack cho redo
 
-    // ========== SCORE TRACKING ==========
+    //  SCORE TRACKING
     int blackFinalScore;
     int whiteFinalScore;
 
-    // ========== GAME LOOP ==========
-    void init();                    // Khởi tạo game (window + state)
-    void resetGame();               // Reset game state (không tạo window mới)
-    void handleInput();             // Xử lý input từ người chơi
-    void update();                  // Cập nhật logic game
-    void render();                  // Vẽ UI
-    void cleanup();                 // Dọn dẹp khi thoát
+    //  GAME LOOP
+    void init();
+    void resetGame();        // Reset game state
+    void handleInput();        // Xử lý input từ người chơi
+    void update();           // Cập nhật logic game
+    void render();            // Vẽ UI
+    void cleanup();
 
     // ========== INPUT HANDLERS ==========
     void handleStonePlace(int row, int col);   // Xử lý đặt quân
@@ -68,10 +64,10 @@ private:
     void handleNewGame();                       // Xử lý New Game
     void handleAITurn();                        // Xử lý lượt chơi của AI
 
-    // ========== GAME LOGIC ==========
-    void switchPlayer();                        // Chuyển lượt chơi
-    void checkGameOver();                       // Kiểm tra điều kiện kết thúc
-    void calculateFinalScore();                 // Tính điểm cuối cùng
+    //GAME Logic
+    void switchPlayer();       // Chuyển lượt chơi
+    void checkGameOver();       // Kiểm tra điều kiện kết thúc
+    void calculateFinalScore();       // Tính điểm cuối cùng
 };
 
-#endif // GAME_H_INCLUDED
+#endif

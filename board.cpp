@@ -24,16 +24,11 @@ Board::Board() {
     player='B';
     undo.push(*this);
 }
-
-// Copy constructor - FIX MEMORY LEAK
-// CHỈ copy game state, KHÔNG copy stack undo/redo để tránh đệ quy vô hạn
 Board::Board(const Board& other) {
     memcpy(this->board, other.board, sizeof(this->board));
     this->BlackStoneCapture = other.BlackStoneCapture;
     this->WhiteStoneCapture = other.WhiteStoneCapture;
     this->player = other.player;  // Copy player
-    // KHÔNG copy undo và redo
-    // Stack undo/redo của object mới sẽ TRỐNG
 }
 std::vector<std::pair<int,int>> Board::AllValidMove() const {
     std::vector<std::pair<int,int>>v;
@@ -146,7 +141,7 @@ NumberAndTypeOfArea Board::BfsArea(int row, int col,bool VisitedLiberties[20][20
                 else if (board[i1][j1]=='B') {
                     TouchedBlack=true;
                 }
-                else if (board[i1][j1]=='W') {  // ← FIX: Chỉ khi THỰC SỰ là quân trắng
+                else if (board[i1][j1]=='W') {
                     TouchedWhite=true;
                 }
             }
@@ -210,7 +205,7 @@ Board& Board::operator=(const Board& other) {
     this->player=other.player;
     return *this;
 }
-bool Board::SaveGame(string filename) {
+bool Board::SaveGame(string filename) {     //DO SAVEGAME
     ofstream fout;
     fout.open(filename);
     if(!fout.is_open()) {
@@ -245,4 +240,73 @@ bool Board::LoadGame(string filename) {
     undo.push(*this);
     fin.close();
     return true;
+}
+vector<pair<int,int>>Board::quickMove() const{
+    vector<pair<int,int>> Move;
+    int cnt=0;
+    for(int i=1;i<=19;i++) {
+        for(int j=1;j<=19;j++) {
+            if(board[i][j]!='O') cnt++;
+        }
+    }
+    // voi cac truong hop co qua nhieu nuoc di, uu tien di tai cac nut sao
+    int star[3]={4,10,16};
+    if(cnt<=5) {
+        for(int r = 0 ;r<3;r++) {
+            for(int l = 0; l<3;l++) {
+                if(board[star[r]][star[l]]=='O')
+                    Move.push_back({star[r],star[l]});
+            }
+        }
+        return Move;
+    }
+    for (int i = 1; i <= 19; i++) {
+        for (int j = 1; j <= 19; j++) {
+            if (board[i][j] == 'O') {
+                bool hasNeighbor = false;
+                for (int di = -1; di <= 1; di++) {
+                    for (int dj = -1; dj <= 1; dj++) {
+                        int ni = i + di;
+                        int nj = j + dj;
+                        if (ni >= 1 && ni <= 19 && nj >= 1 && nj <= 19) {
+                            if (board[ni][nj] != 'O') {
+                                hasNeighbor = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(hasNeighbor) break;
+                }
+                if (hasNeighbor) {
+                    Move.push_back({i, j});
+                }
+            }
+        }
+    }
+    return Move;
+}
+// Bảng điểm ưu tiên vị trí (Càng gần trung tâm/sao càng cao điểm)
+int GetPositionScore(int row, int col) {
+    // Càng gần trung tâm càng nhiều điểm (để khuyến khích vây đất)
+    int distToCenter = abs(row - 10) + abs(col - 10);
+    return 20 - distToCenter;
+}
+
+int Board::quickeval(char AI_player) const {
+    int blackScore = BlackStoneCapture * 100; // Tăng hệ số ăn quân lên để AI ưu tiên sống sót
+    int whiteScore = WhiteStoneCapture * 100;
+
+    for (int i = 1; i <= 19; i++) {
+        for (int j = 1; j <= 19; j++) {
+            if (board[i][j] == 'B') {
+                // Cộng thêm điểm vị trí chiến lược
+                blackScore += (10 + GetPositionScore(i, j));
+            }
+            else if (board[i][j] == 'W') {
+                whiteScore += (10 + GetPositionScore(i, j));
+            }
+        }
+    }
+    if (AI_player == 'B') return blackScore - whiteScore;
+    else return whiteScore - blackScore;
 }

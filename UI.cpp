@@ -7,15 +7,15 @@
 #include <ctime>
 #include <sys/stat.h>
 
-// ========== CONSTRUCTOR/DESTRUCTOR ==========
+//CONSTRUCTOR/DESTRUCTOR
 UI::UI() {
     // Khởi tạo màu sắc
-    boardColor = Color{220, 179, 92, 255};      // Màu gỗ cho bàn cờ
+    boardColor = Color{220, 179, 92, 255}; // Màu gỗ cho bàn cờ
     lineColor = BLACK;
     starPointColor = BLACK;
     blackStoneColor = Color{30, 30, 30, 255};
     whiteStoneColor = Color{245, 245, 245, 255};
-    hoverColor = Color{100, 100, 255, 100};     // Màu xanh hover
+    hoverColor = Color{100, 100, 255, 100};   // Màu xanh hover
 
     // Khởi tạo menu state
     showAINotification = false;
@@ -50,7 +50,7 @@ UI::~UI() {
     // Destructor (không cần làm gì)
 }
 
-// ========== KHỞI TẠO VÀO WINDOW RAYLIB ==========
+// KHỞI TẠO VÀO WINDOW RAYLIB
 void UI::init() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Go Game - Cờ Vây");
     SetTargetFPS(60);
@@ -63,7 +63,7 @@ void UI::init() {
         printf("Current working directory: %s\n", cwd);
     }
 
-    // ========== LOAD MENU TEXTURES ==========
+    //LOAD MENU TEXTURES
     printf("Loading menu textures...\n");
 
     // Thử nhiều path khác nhau để load menu.png
@@ -222,7 +222,7 @@ void UI::cleanup() {
     CloseWindow();
 }
 
-// ========== KHỞI TẠO VỊ TRÍ CÁC NÚT ==========
+//KHỞI TẠO VỊ TRÍ CÁC NÚT
 void UI::initButtons() {
     int buttonX = BOARD_OFFSET_X + BOARD_SIZE * CELL_SIZE + 50;
     int buttonY = BOARD_OFFSET_Y;
@@ -244,7 +244,7 @@ void UI::initButtons() {
     menuButton = {(float)buttonX2, (float)(buttonY + buttonSpacing * 2), (float)buttonWidth, (float)buttonHeight};
 }
 
-// ========== BẮT ĐẦU VẼ/KẾT THÚC VẼ ==========
+//BẮT ĐẦU VẼ/KẾT THÚC VẼ
 void UI::beginDrawing() {
     BeginDrawing();
     ClearBackground(Color{180, 140, 80, 255});  // Màu nền gỗ
@@ -274,7 +274,6 @@ void UI::resetToMainMenu() {
 
 // ========== VẼ BÀN CỜ ==========
 void UI::drawBoard() {
-    // Vẽ nền bàn cờ
     int boardPixelSize = (BOARD_SIZE - 1) * CELL_SIZE;
     DrawRectangle(
         BOARD_OFFSET_X - 20,
@@ -284,13 +283,8 @@ void UI::drawBoard() {
         boardColor
     );
 
-    // Vẽ grid lines
     drawGridLines();
-
-    // Vẽ star points (9 điểm đặc biệt)
     drawStarPoints();
-
-    // Vẽ tọa độ
     drawCoordinates();
 }
 
@@ -365,7 +359,7 @@ void UI::drawCoordinates() {
     }
 }
 
-// ========== VẼ QUÂN CỜ ==========
+//VẼ QUÂN CỜ
 void UI::drawStones(const Board& board) {
     for (int row = 1; row <= BOARD_SIZE; row++) {
         for (int col = 1; col <= BOARD_SIZE; col++) {
@@ -388,7 +382,7 @@ void UI::drawStones(const Board& board) {
     }
 }
 
-// ========== VẼ HIỆU ỨNG HOVER ==========
+//VẼ HIỆU ỨNG HOVER
 void UI::drawHoverEffect(int row, int col) {
     if (isInsideBoard(row, col)) {
         Vector2 pos = boardToScreen(row, col);
@@ -396,7 +390,7 @@ void UI::drawHoverEffect(int row, int col) {
     }
 }
 
-// ========== VẼ THÔNG TIN LƯỢT CHƠI ==========
+//VẼ THÔNG TIN LƯỢT CHƠI
 void UI::drawPlayerTurn(char currentPlayer) {
     const char* turnText = (currentPlayer == 'B') ? "Black's Turn" : "White's Turn";
     Color textColor = (currentPlayer == 'B') ? BLACK : Color{100, 100, 100, 255};
@@ -413,7 +407,7 @@ void UI::drawPlayerTurn(char currentPlayer) {
     }
 }
 
-// ========== VẼ ĐIỂM SỐ ==========
+//VẼ ĐIỂM SỐ
 void UI::drawScore(int blackArea, int whiteArea, int blackCapture, int whiteCapture) {
     int textX = BOARD_OFFSET_X + (BOARD_SIZE - 1) * CELL_SIZE + 50;
     int textY = BOARD_OFFSET_Y + 400;  // Khôi phục vị trí (sau Player Turn)
@@ -426,8 +420,7 @@ void UI::drawScore(int blackArea, int whiteArea, int blackCapture, int whiteCapt
     // White score (+ Komi 7.5)
     DrawText(TextFormat("White: %d + %d + 7", whiteArea, whiteCapture), textX, textY + 65, 20, Color{100, 100, 100, 255});
 }
-
-// ========== VẼ CÁC NÚT ==========
+//VẼ CÁC NÚT
 void UI::drawButtons() {
     // Undo button
     DrawRectangleRec(undoButton, Color{100, 150, 255, 255});
@@ -465,7 +458,7 @@ void UI::drawButtons() {
     DrawText("MENU", (int)menuButton.x + 45, (int)menuButton.y + 15, 20, WHITE);
 }
 
-// ========== VẼ MÀN HÌNH KẾT THÚC ==========
+// VẼ MÀN HÌNH KẾT THÚC
 void UI::drawGameOver(char winner, int blackScore, int whiteScore) {
     // VẼ OVERLAY TỔNG THỂ
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color{0, 0, 0, 150});
@@ -505,7 +498,7 @@ void UI::drawGameOver(char winner, int blackScore, int whiteScore) {
     DrawText("MENU", buttonX + 65, buttonY + 18, 25, WHITE);
 }
 
-// ========== CHUYỂN ĐỔI TỌA ĐỘ ==========
+// CHUYỂN ĐỔI TỌA ĐỘ
 void UI::screenToBoard(Vector2 mousePos, int& row, int& col) {
     // chuyển từ pixel sang tọa độ bàn cờ
     int relX = (int)mousePos.x - BOARD_OFFSET_X;
@@ -529,7 +522,7 @@ Vector2 UI::boardToScreen(int row, int col) {
     return Vector2{x, y};
 }
 
-// ========== KIỂM TRA CLICK CHUỘT ==========
+// KIỂM TRA CLICK CHUỘT
 bool UI::isUndoButtonClicked(Vector2 mousePos) {
     return CheckCollisionPointRec(mousePos, undoButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
@@ -563,13 +556,13 @@ bool UI::isNewGameButtonGameOverClicked(Vector2 mousePos) {
     return CheckCollisionPointRec(mousePos, gameOverNewGameButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
-// ========== KHỞI TẠO NÚT MENU ==========
+//KHỞI TẠO NÚT MENU
 void UI::initMenuButtons() {
     // Vị trí các nút sẽ được tính khi vẽ dựa trên kích thước texture
     // Placeholder - sẽ được update trong drawMenu()
 }
 
-// ========== VẼ MÀN HÌNH MENU ==========
+//VẼ MÀN HÌNH MENU
 void UI::drawMenu() {
     // Nếu đang ở menu chọn độ khó, vẽ menu đó thay vì menu chính
     if (showDifficultyMenu) {
@@ -594,7 +587,7 @@ void UI::drawMenu() {
         WHITE
     );
 
-    // ========== VẼ BUTTON PLAYER VS PLAYER ==========
+    //VẼ BUTTON PLAYER VS PLAYER
     if (buttonPlayerTexture.id != 0) {
         // Tính vị trí button (ở giữa màn hình, phía dưới, bên trái)
         int buttonWidth = 400;  // Kích thước mong muốn
@@ -624,7 +617,7 @@ void UI::drawMenu() {
         );
     }
 
-    // ========== VẼ BUTTON PLAYER VS AI ==========
+    //VẼ BUTTON PLAYER VS AI
     if (buttonAITexture.id != 0) {
         // Tính vị trí button AI (bên phải button Player)
         int buttonWidth = 400;
@@ -693,7 +686,6 @@ void UI::drawMenu() {
     // Vẽ thông báo AI nếu cần
     if (showAINotification) {
         drawAINotification();
-        // Xử lý đóng notification sẽ được handle trong drawAINotification()
     }
 }
 
@@ -834,7 +826,7 @@ void UI::drawAINotification() {
     DrawRectangle(boxX, boxY, boxWidth, boxHeight, Color{240, 220, 180, 255});
     DrawRectangleLinesEx(Rectangle{(float)boxX, (float)boxY, (float)boxWidth, (float)boxHeight}, 5, BLACK);
 
-    // ========== NÚT X Ở GÓC TRÊN PHẢI ==========
+    // NÚT X Ở GÓC TRÊN PHẢI
     int closeButtonSize = 40;
     int closeButtonX = boxX + boxWidth - closeButtonSize - 10;
     int closeButtonY = boxY + 10;
@@ -854,7 +846,7 @@ void UI::drawAINotification() {
     DrawText("Please come back later!", boxX + 160, boxY + 130, 20, BLACK);
 
     // ========== XỬ LÝ ĐÓNG THÔNG BÁO ==========
-    // CHỈ cho phép đóng SAU KHI đã hiển thị đủ 60 frames (~1 giây)
+    // CHỈ cho phép đóng SAU KHI đã hiển thị đủ 60 frames (
     const int DELAY_FRAMES = 60;  // 1 giây với 60 FPS
 
     if (notificationFrameCounter > DELAY_FRAMES && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -870,7 +862,7 @@ void UI::drawAINotification() {
         // Check click vào vùng ngoài box (overlay)
         Rectangle notificationBox = {(float)boxX, (float)boxY, (float)boxWidth, (float)boxHeight};
         if (!CheckCollisionPointRec(mousePos, notificationBox)) {
-            // Click vào vùng ngoài box → đóng
+            // Click vào vùng ngoài box
             showAINotification = false;
             notificationFrameCounter = 0;  // Reset counter
         }
@@ -1025,7 +1017,7 @@ void UI::drawTextWithOutline(const char* text, int x, int y, int fontSize, Color
 std::string UI::detectSaveGameDirectory() {
     namespace fs = std::filesystem;
 
-    // Try current directory first (Code::Blocks case - running from root)
+    // Try current directory first
     if (fs::exists("save_game")) {
         return "save_game";
     }
@@ -1040,7 +1032,7 @@ std::string UI::detectSaveGameDirectory() {
     return "save_game";
 }
 
-// ========== SAVE/LOAD POPUP IMPLEMENTATIONS ==========
+//SAVE/LOAD POPUP IMPLEMENTATIONS
 
 
 void UI::drawSaveGamePopup() {
@@ -1055,8 +1047,6 @@ void UI::drawSaveGamePopup() {
 
     DrawRectangle(boxX, boxY, boxWidth, boxHeight, Color{240, 220, 180, 255});
     DrawRectangleLinesEx(Rectangle{(float)boxX, (float)boxY, (float)boxWidth, (float)boxHeight}, 5, BLACK);
-
-    // Title
     DrawText("SAVE GAME", boxX + 160, boxY + 30, 30, BLACK);
 
     // Instruction
@@ -1160,7 +1150,7 @@ void UI::drawLoadGamePopup() {
         }
     }
 
-    // ========== XỬ LÝ CLICK CHỈ SAU KHI ĐỦ DELAY ==========
+    //XỬ LÝ CLICK CHỈ SAU KHI ĐỦ DELAY
     const int DELAY_FRAMES = 30;  // 0.5 giây với 60 FPS
 
     if (loadPopupFrameCounter > DELAY_FRAMES && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
